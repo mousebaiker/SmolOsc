@@ -2,9 +2,8 @@ import numpy as np
 from scipy.signal import fftconvolve
 
 class Simulation(object):
-  def __init__(self, num_equations, dt, lmbda, alpha):
-    self.concentration = np.zeros(1 + num_equations, dtype=np.float64)
-    self.concentration[1] = 1.0
+  def __init__(self, initial_concentration, dt, lmbda, alpha):
+    self.concentration = np.copy(initial_concentration)
     self.dt = dt
     self.lmbda = lmbda
     self.alpha = alpha
@@ -33,6 +32,9 @@ class Simulation(object):
     """
     raise NotImplementedError
 
+  def update_lambda(self, l):
+    self.lmbda = l
+
   def compute_update(self, concentration):
     update = np.zeros_like(concentration)
     K_n = self.K_n(concentration)
@@ -46,15 +48,14 @@ class Simulation(object):
     self.concentration += self.dt * update
 
   def run_simulation(self, num_iters):
-    for i in range(num_iters):
-      # print(i)
+    for _ in range(num_iters):
       self.simulation_step()
     return self.concentration
 
 
 class NaiveSimulation(Simulation):
-  def __init__(self, num_equations, dt, lmbda, alpha):
-    super().__init__(num_equations, dt, lmbda, alpha)
+  def __init__(self, initial_concentration, dt, lmbda, alpha):
+    super().__init__(initial_concentration, dt, lmbda, alpha)
 
   def K_nn(self, concentration):
     """
@@ -80,8 +81,6 @@ class NaiveSimulation(Simulation):
     """
     sum_{j >= 1} K_{k, j} * n_{j} -> vector
     """
-    result = np.zeros_like(concentration)
-
     iss = np.arange(len(concentration)).reshape((-1, 1))
     js = np.arange(len(concentration))
     K = (iss / js)**self.alpha + (js / iss)**self.alpha
@@ -97,15 +96,15 @@ class NaiveSimulation(Simulation):
 
 
 class FastSimulation(Simulation):
-  def __init__(self, num_equations, dt, lmbda, alpha):
-    super().__init__(num_equations, dt, lmbda, alpha)
+  def __init__(self, initial_concentration, dt, lmbda, alpha):
+    super().__init__(initial_concentration, dt, lmbda, alpha)
 
-    self.trunc_js = np.arange(2, num_equations + 1, dtype=np.float64)
+    self.trunc_js = np.arange(2, len(self.concentration), dtype=np.float64)
     js = self.trunc_js
     self.j_K_1j = js * (1/js**self.alpha + js**self.alpha)
 
-    js = np.arange(1, num_equations + 1, dtype=np.float64)
-    self.V = np.zeros((2, num_equations + 1))
+    js = np.arange(1, len(self.concentration), dtype=np.float64)
+    self.V = np.zeros((2, len(self.concentration)))
     self.V[0, 1:] = js**(-self.alpha)
     self.V[1, 1:] = js**(self.alpha)
     self.U = self.V.T[:, ::-1]
