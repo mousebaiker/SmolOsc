@@ -22,13 +22,17 @@ def plot_moments(ts, zeroth, first, second):
   return fig, axes
 
 
-def create_solution_animation(ts, k, solutions, name, analytical=None):
+def create_solution_animation(ts, k, solutions, name, analytical=None, loglog=True):
   fig, ax = plt.subplots()
-  ln, = ax.loglog([], [])
+  if loglog:
+    ln, = ax.loglog([], [])
+  else:
+    ln, = ax.semilogy([], [])
   if analytical is not None:
     ax.loglog(k, analytical, label='Analytical')
 
   def init():
+      ax.set_xlim(1, k[-1])
       ax.set_ylim(10**(-16), 10**(0))
       return ln,
 
