@@ -20,6 +20,11 @@ def load_solutions(experiment_name):
 
   return np.array(iters), np.array(solutions)
 
+def load_param_history(experiment_name):
+  experiment_dir = os.path.join(DATA_DIRECTORY, experiment_name)
+  return np.load(os.path.join(experiment_dir, 'lambda.npy'))
+
+
 def compute_batch_moments(solution, order):
   k = np.arange(solution.shape[1])
   return solution @ (k**order)

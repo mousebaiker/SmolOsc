@@ -8,7 +8,8 @@ import simulation
 DATA_DIRECTORY = 'data'
 
 class Experiment(object):
-  def __init__(self, dt, lmbda, alpha, num_equations=None, initial=None):
+  def __init__(self, dt, lmbda, alpha, num_equations=None, initial=None,
+      final_lambda=None, lambda_decay_type=None):
     if initial is None and num_equations is None:
       raise ValueError("At least one of num_equations and initial should be provided.")
 
@@ -19,6 +20,8 @@ class Experiment(object):
     self.num_equations = len(initial)
 
     self.lmbda = lmbda
+    self.final_lambda = final_lambda
+    self.lambda_decay_type  = lambda_decay_type
     self.sim = simulation.FastSimulation(initial, dt, lmbda, alpha)
 
   def run_experiment(self, name, num_iters, checkpoint_freq):
@@ -26,27 +29,48 @@ class Experiment(object):
     solutions_dir = os.path.join(result_dir, 'solutions')
     os.makedirs(solutions_dir)
 
-    lambdas = []
+    lambdas = self.precompute_lambdas(num_iters)
+    lambda_history = []
     for iter in tqdm.tqdm(range(num_iters)):
-      l = self.compute_lambda(iter)
+      l = lambdas[iter]
       self.sim.update_lambda(l)
       self.sim.simulation_step()
 
       if iter % checkpoint_freq == 0:
         solutions_path = os.path.join(solutions_dir, str(iter))
         np.save(solutions_path, self.sim.concentration)
-        lambdas.append(l)
+        lambda_history.append(l)
 
     if num_iters % checkpoint_freq != 0:
       solutions_path = os.path.join(solutions_dir, str(num_iters - 1))
       np.save(solutions_path, self.sim.concentration)
-      lambdas.append(l)
+      lambda_history.append(l)
 
-    params_path = os.path.join(result_dir, 'params')
-    np.save(params_path, np.array(lambdas))
+    lambdas_path = os.path.join(result_dir, 'lambda')
+    np.save(lambdas_path, np.array(lambda_history))
 
-  def compute_lambda(self, iter):
-    return self.lmbda
+  def precompute_lambdas(self, num_iters):
+    if self.lambda_decay_type is None:
+      return np.ones(num_iters) * self.lmbda
+
+    ts = np.linspace(0, 1.0, num_iters)
+    lambda_range = self.lmbda - self.final_lambda
+    lambdas = None
+    if self.lambda_decay_type == 'logistic':
+      shifted = ts - 0.4
+      lambdas = 1 - 1 / (1 + np.exp(-12*shifted))
+
+    if self.lambda_decay_type == 'exponential':
+      exps = np.exp(-5*ts)
+      height = np.max(exps) - np.min(exps)
+      lambdas = (exps - np.min(exps)) / height
+
+    if lambdas is None:
+      raise ValueError(f'Lambda decay type {self.lambda_decay_type} is not supported.')
+
+    return lambdas * lambda_range + self.final_lambda
+
+
 
   def analytical_solution(self):
     k = np.arange(self.num_equations)
