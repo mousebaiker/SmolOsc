@@ -27,7 +27,7 @@ lambda: 0.05
 # `lambda_decay_type` scheme. If omitted, lambda stays constant for the whole experiment.
 final_lambda: 0.005
 
-# Either exponential or logistic.
+# Exponential, steep_exponential, logistic.
 lambda_decay_type: exponential
 
 # Brownial coagulation kernel parameter: K(i, j) = (i / j)**(alpha) + (j / i)**(alpha)

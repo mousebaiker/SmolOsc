@@ -60,8 +60,9 @@ class Experiment(object):
       shifted = ts - 0.4
       lambdas = 1 - 1 / (1 + np.exp(-12*shifted))
 
-    if self.lambda_decay_type == 'exponential':
-      exps = np.exp(-5*ts)
+    if self.lambda_decay_type in ['exponential', 'steep_exponential']:
+      scale = 10 if self.lambda_decay_type == 'steep_exponential' else 5
+      exps = np.exp(-scale*ts)
       height = np.max(exps) - np.min(exps)
       lambdas = (exps - np.min(exps)) / height
 
