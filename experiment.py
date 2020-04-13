@@ -5,11 +5,13 @@ import tqdm
 
 import simulation
 
+import simulation_cuda as simcp
+
 DATA_DIRECTORY = 'data'
 
 class Experiment(object):
   def __init__(self, dt, lmbda, alpha, num_equations=None, initial=None,
-      final_lambda=None, lambda_decay_type=None):
+      final_lambda=None, lambda_decay_type=None, use_cuda=False):
     if initial is None and num_equations is None:
       raise ValueError("At least one of num_equations and initial should be provided.")
 
@@ -22,7 +24,10 @@ class Experiment(object):
     self.lmbda = lmbda
     self.final_lambda = final_lambda
     self.lambda_decay_type  = lambda_decay_type
-    self.sim = simulation.FastSimulation(initial, dt, lmbda, alpha)
+    if use_cuda:
+      self.sim = simcp.CudaSimulation(initial, dt, lmbda, alpha)
+    else:
+      self.sim = simulation.FastSimulation(initial, dt, lmbda, alpha)
 
   def run_experiment(self, name, num_iters, checkpoint_freq):
     result_dir = os.path.join(DATA_DIRECTORY, name)
@@ -31,6 +36,7 @@ class Experiment(object):
 
     lambdas = self.precompute_lambdas(num_iters)
     lambda_history = []
+    print(type(self.sim.concentration))
     for iter in tqdm.tqdm(range(num_iters)):
       l = lambdas[iter]
       self.sim.update_lambda(l)
@@ -75,10 +81,3 @@ class Experiment(object):
   def analytical_solution(self):
     k = np.arange(self.num_equations)
     return self.lmbda /(np.sqrt(np.pi) * k**(3/2)) * np.exp(-self.lmbda**2 * k)
-
-
-
-
-
-
-

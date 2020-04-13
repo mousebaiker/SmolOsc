@@ -57,7 +57,8 @@ def main():
   e = experiment.Experiment(dt=config.get('dt'), lmbda=config.get('lambda'),
       alpha=config.get('alpha'), num_equations=config.get('num_equations'),
       initial=initial, final_lambda=config.get('final_lambda'),
-      lambda_decay_type=config.get('lambda_decay_type'))
+      lambda_decay_type=config.get('lambda_decay_type'), use_cuda=config.get('use_cuda'))
+
 
   name = config['experiment_name']
 
