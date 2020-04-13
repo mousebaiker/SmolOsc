@@ -1,4 +1,4 @@
-import os
+import sys
 
 CUDA_ENABLED = True
 try:
@@ -12,7 +12,7 @@ import simulation
 class CudaSimulation(simulation.FastSimulation):
   def __init__(self, initial_concentration, dt, lmbda, alpha):
     if not CUDA_ENABLED:
-      print('CuPy is not installed! Falling back to numpy.', file=os.stderr)
+      print('CuPy is not installed! Falling back to numpy.', file=sys.stderr)
     initial_concentration = cp.array(initial_concentration)
     super().__init__(initial_concentration, dt, lmbda, alpha)
 
