@@ -1,4 +1,4 @@
-experiment_name: decay_45000
+experiment_name: decay_45000_logistic
 dt: 0.0001
 num_iters: 5000000
 checkpoint_frequency: 1000
