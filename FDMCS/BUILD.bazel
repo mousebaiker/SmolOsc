@@ -1,0 +1,14 @@
+cc_library(
+  name = "simulation_lib",
+  srcs = ["simulation.cc"],
+  hdrs = ["simulation.h"]
+)
+
+cc_test(
+  name = "simulation_test",
+  srcs = ["simulation_test.cc"],
+  deps = [
+    ":simulation_lib",
+    "//googletest:gtest_main",
+  ]
+)
