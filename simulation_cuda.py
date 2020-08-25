@@ -16,18 +16,15 @@ class CudaSimulation(simulation.FastSimulation):
     initial_concentration = cp.array(initial_concentration)
     super().__init__(initial_concentration, dt, lmbda, alpha)
 
-    self.trunc_js = cp.arange(2, len(self.concentration), dtype=cp.float64)
-    js = self.trunc_js
-    self.j_K_1j = js * (1/js**self.alpha + js**self.alpha)
 
-    js = cp.arange(1, len(self.concentration), dtype=cp.float64)
+    js = cp.arange(0, len(self.concentration), dtype=cp.float64)
     self.V = cp.zeros((2, len(self.concentration)))
-    self.V[0, 1:] = js**(-self.alpha)
-    self.V[1, 1:] = js**(self.alpha)
+    self.V[0, 1:] = js[1:]**(-self.alpha)
+    self.V[1, 1:] = js[1:]**(self.alpha)
     self.U = self.V.T[:, ::-1]
 
-    self.trunc_Vj = self.V[:, 2:] * self.trunc_js[None, :]
-    self.trunc_U = self.U[2:, :]
+    self.Vj = self.V * js[None, :]
+
 
   def K_nn(self, concentration):
     """

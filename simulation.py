@@ -16,7 +16,7 @@ class Simulation(object):
 
   def K_ij_nn(self, concentration):
     """
-    sum_{i, j >= 2} K_{ij} * (i + j) * n_i * n_j -> float
+    sum_{i, j >= 1} K_{ij} * (i + j) * n_i * n_j -> float
     """
     raise NotImplementedError
 
@@ -26,11 +26,6 @@ class Simulation(object):
     """
     raise NotImplementedError
 
-  def j_K_1j_n(self, concentration):
-    """
-    sum_{j >= 2} j * K_{1j}*n_j -> float
-    """
-    raise NotImplementedError
 
   def update_lambda(self, l):
     self.lmbda = l
@@ -38,9 +33,9 @@ class Simulation(object):
   def compute_update(self, concentration):
     update = np.zeros_like(concentration)
     K_n = self.K_n(concentration)
-    update[1] = (-concentration[1] * K_n[1] + self.lmbda / 2 * self.K_ij_nn(concentration)
-        + self.lmbda * concentration[1] * self.j_K_1j_n(concentration))
-    update[2:] = (0.5 * self.K_nn(concentration) - (1 + self.lmbda) * concentration * K_n)[2:]
+    update[1] = self.lmbda / 2 * self.K_ij_nn(concentration)
+    update[2:] = 0.5 * self.K_nn(concentration)[2:]
+    update -= (1 + self.lmbda) * concentration * K_n
     return update
 
   def simulation_step(self):
@@ -69,11 +64,11 @@ class NaiveSimulation(Simulation):
 
   def K_ij_nn(self, concentration):
     """
-    sum_{i, j >= 2} K_{ij} * (i + j) * n_i * n_j
+    sum_{i, j >= 1} K_{ij} * (i + j) * n_i * n_j
     """
     result = 0
-    for i in range(2, len(concentration)):
-      for j in range(2, len(concentration)):
+    for i in range(1, len(concentration)):
+      for j in range(1, len(concentration)):
         result += ((i / j)**self.alpha + (j / i)**self.alpha) * (i + j) * concentration[i] * concentration[j]
     return result
 
@@ -87,30 +82,18 @@ class NaiveSimulation(Simulation):
     K[~np.isfinite(K)] = 0
     return K @ concentration
 
-  def j_K_1j_n(self, concentration):
-    """
-    sum_{j >= 2} j * K_{1j}*n_j
-    """
-    js = np.arange(2, len(concentration))
-    return js @ ((1/js**self.alpha + js**self.alpha) * concentration[2:])
-
 
 class FastSimulation(Simulation):
   def __init__(self, initial_concentration, dt, lmbda, alpha):
     super().__init__(initial_concentration, dt, lmbda, alpha)
 
-    self.trunc_js = np.arange(2, len(self.concentration), dtype=np.float64)
-    js = self.trunc_js
-    self.j_K_1j = js * (1/js**self.alpha + js**self.alpha)
-
-    js = np.arange(1, len(self.concentration), dtype=np.float64)
+    js = np.arange(0, len(self.concentration), dtype=np.float64)
     self.V = np.zeros((2, len(self.concentration)))
-    self.V[0, 1:] = js**(-self.alpha)
-    self.V[1, 1:] = js**(self.alpha)
+    self.V[0, 1:] = js[1:]**(-self.alpha)
+    self.V[1, 1:] = js[1:]**(self.alpha)
     self.U = self.V.T[:, ::-1]
 
-    self.trunc_Vj = self.V[:, 2:] * self.trunc_js[None, :]
-    self.trunc_U = self.U[2:, :]
+    self.Vj = self.V * js[None, :]
 
   def K_nn(self, concentration):
     """
@@ -123,11 +106,10 @@ class FastSimulation(Simulation):
 
   def K_ij_nn(self, concentration):
     """
-    sum_{i, j >= 2} K_{ij} * (i + j) * n_i * n_j
+    sum_{i, j >= 1} K_{ij} * (i + j) * n_i * n_j
     """
-    trunc_concentration = concentration[2:]
-    right = self.trunc_Vj @ (trunc_concentration)
-    left = trunc_concentration @ self.trunc_U
+    right = self.Vj @ concentration
+    left = concentration @ self.U
     return 2 * left @ right
 
 
@@ -136,13 +118,6 @@ class FastSimulation(Simulation):
     sum_{j >= 1} K_{k, j} * n_{j} -> vector
     """
     return self.U @ (self.V @ concentration)
-
-
-  def j_K_1j_n(self, concentration):
-    """
-    sum_{j >= 2} j * K_{1j}*n_j
-    """
-    return self.j_K_1j @ concentration[2:]
 
 
 class ConstantSourceSimulation(FastSimulation):
