@@ -3,7 +3,10 @@
 #include <algorithm>
 #include <iostream>
 
+inline constexpr int kNumSmallParticles = 1000;
+
 Simulation::Simulation() {
+  small_particles.reserve(kNumSmallParticles);
   for (int i = 0; i < kNumSmallParticles; i++) {
     small_particles[i] = Particle{0, i, 0};
   }

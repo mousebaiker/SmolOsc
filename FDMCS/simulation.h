@@ -12,7 +12,6 @@ typedef struct {
   float remaining_rate;
 } SearchResult;
 
-inline constexpr int kNumSmallParticles = 1000;
 
 class Simulation {
  public:
@@ -34,7 +33,7 @@ class Simulation {
   SearchResult FindFirst(float rate);
   SearchResult FindSecond(SearchResult first);
 
-  Particle small_particles[kNumSmallParticles];
+  std::vector<Particle> small_particles;
   std::vector<Particle> big_particles;
   float total_rate;
   int total_size;

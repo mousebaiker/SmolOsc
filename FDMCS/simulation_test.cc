@@ -8,6 +8,8 @@ using ::testing::UnorderedElementsAre;
 
 #include <iostream>
 
+inline constexpr int kNumSmallParticles = 1000;
+
 inline bool operator==(const Particle& lhs, const Particle& rhs) {
   return lhs.size == rhs.size && lhs.count == rhs.count &&
          abs(lhs.collision_rate - rhs.collision_rate) < 1e-8;
