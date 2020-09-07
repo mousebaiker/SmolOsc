@@ -12,14 +12,14 @@ typedef struct {
   float remaining_rate;
 } SearchResult;
 
-
 class Simulation {
  public:
   Simulation();
   void AddParticle(int size);
-  void DeleteParticle(int idx);
-  std::pair<int, int> FindPair(float rate);
   void AddMonomers(int num_monomers);
+  void DeleteParticle(int idx);
+  void DeletePair(const std::pair<int, int>& idxs);
+  std::pair<int, int> FindPair(float rate);
 
   std::vector<Particle> GetDistribution();
 

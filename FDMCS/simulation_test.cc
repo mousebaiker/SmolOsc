@@ -4,6 +4,7 @@
 #include "gtest/gtest.h"
 
 using ::testing::ElementsAre;
+using ::testing::IsEmpty;
 using ::testing::UnorderedElementsAre;
 
 #include <iostream>
@@ -101,7 +102,8 @@ TEST(SimulationTest, AddMonomersWorksOnMultiples) {
   std::vector<Particle> particles = simulation.GetDistribution();
   EXPECT_THAT(particles, UnorderedElementsAre(
                              Particle{/*count=*/3, /*size=*/1, /*rate=*/6},
-                             Particle{/*count=*/2, /*size=*/2, /*rate=*/10}));
+                             Particle{/*count=*/2, /*size=*/2,
+                                      /*rate=*/10}));
 }
 
 TEST(SimulationTest, DeleteParticleWorks) {
@@ -133,4 +135,34 @@ TEST(SimulationTest, DeleteParticleWorks) {
   simulation.DeleteParticle(1);
   particles = simulation.GetDistribution();
   EXPECT_THAT(particles, UnorderedElementsAre());
+}
+
+TEST(SimulationTest, DeletePairDeletesSmall) {
+  Simulation simulation;
+  simulation.AddParticle(1);
+  simulation.AddParticle(2);
+
+  simulation.DeletePair(std::pair{1, 2});
+  std::vector<Particle> particles = simulation.GetDistribution();
+  EXPECT_THAT(particles, IsEmpty());
+}
+
+TEST(SimulationTest, DeletePairDeletesSameSmall) {
+  Simulation simulation;
+  simulation.AddParticle(1);
+  simulation.AddParticle(1);
+
+  simulation.DeletePair(std::pair{1, 1});
+  std::vector<Particle> particles = simulation.GetDistribution();
+  EXPECT_THAT(particles, IsEmpty());
+}
+
+TEST(SimulationTest, DeletePairDeletesBig) {
+  Simulation simulation;
+  simulation.AddParticle(10000);
+  simulation.AddParticle(10001);
+
+  simulation.DeletePair(std::pair{kNumSmallParticles, kNumSmallParticles + 1});
+  std::vector<Particle> particles = simulation.GetDistribution();
+  EXPECT_THAT(particles, IsEmpty());
 }

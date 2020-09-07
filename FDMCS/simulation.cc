@@ -5,10 +5,10 @@
 
 inline constexpr int kNumSmallParticles = 1000;
 
-Simulation::Simulation() {
+Simulation::Simulation() : total_rate(0), total_size(0) {
   small_particles.reserve(kNumSmallParticles);
   for (int i = 0; i < kNumSmallParticles; i++) {
-    small_particles[i] = Particle{0, i, 0};
+    small_particles.push_back({0, i, 0});
   }
 }
 
@@ -64,6 +64,16 @@ void Simulation::DeleteParticle(int idx) {
     particle.collision_rate -= collision_value;
   }
   total_rate -= 2 * rate;
+}
+
+void Simulation::DeletePair(const std::pair<int, int>& idxs) {
+  int first = idxs.first;
+  int second = idxs.second;
+  if (first < second) {
+    std::swap(first, second);
+  }
+  DeleteParticle(first);
+  DeleteParticle(second);
 }
 
 std::pair<int, int> Simulation::FindPair(float rate) {
