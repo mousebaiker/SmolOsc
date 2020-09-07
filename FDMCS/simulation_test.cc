@@ -166,3 +166,37 @@ TEST(SimulationTest, DeletePairDeletesBig) {
   std::vector<Particle> particles = simulation.GetDistribution();
   EXPECT_THAT(particles, IsEmpty());
 }
+
+TEST(SimulationTest, RunSimulationStepNoFragmentation) {
+  Simulation simulation;
+  simulation.AddMonomers(4);
+
+  simulation.RunSimulationStep();
+  std::vector<Particle> particles = simulation.GetDistribution();
+  PrintParticles(particles);
+  EXPECT_THAT(particles, UnorderedElementsAre(
+                             Particle{/*count=*/2, /*size=*/1, /*rate=*/3},
+                             Particle{/*count=*/1, /*size=*/2, /*rate=*/4}));
+
+  simulation.RunSimulationStep();
+  simulation.RunSimulationStep();
+  particles = simulation.GetDistribution();
+  EXPECT_THAT(particles, UnorderedElementsAre(
+                             Particle{/*count=*/1, /*size=*/4, /*rate=*/0}));
+}
+
+TEST(SimulationTest, RunSimulationStepFragmentation) {
+  Simulation simulation(/*fragmentation_rate=*/10000.0, std::mt19937(0));
+  simulation.AddParticle(10000);
+  simulation.AddParticle(20000);
+
+  simulation.RunSimulationStep();
+  std::vector<Particle> particles = simulation.GetDistribution();
+  EXPECT_THAT(particles, UnorderedElementsAre(Particle{
+                             /*count=*/30000, /*size=*/1, /*rate=*/29999}));
+
+  simulation.RunSimulationStep();
+  particles = simulation.GetDistribution();
+  EXPECT_THAT(particles, UnorderedElementsAre(Particle{
+                             /*count=*/30000, /*size=*/1, /*rate=*/29999}));
+}

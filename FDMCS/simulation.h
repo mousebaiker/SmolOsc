@@ -1,3 +1,4 @@
+#include <random>
 #include <utility>
 #include <vector>
 
@@ -15,11 +16,14 @@ typedef struct {
 class Simulation {
  public:
   Simulation();
+  Simulation(float fragmentation_rate, std::mt19937 rng);
   void AddParticle(int size);
   void AddMonomers(int num_monomers);
   void DeleteParticle(int idx);
   void DeletePair(const std::pair<int, int>& idxs);
   std::pair<int, int> FindPair(float rate);
+
+  void RunSimulationStep();
 
   std::vector<Particle> GetDistribution();
 
@@ -35,6 +39,9 @@ class Simulation {
 
   std::vector<Particle> small_particles;
   std::vector<Particle> big_particles;
-  float total_rate;
+  double total_rate;
   int total_size;
+  std::mt19937 rng;
+
+  float fragmentation_rate;
 };

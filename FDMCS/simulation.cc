@@ -2,10 +2,17 @@
 
 #include <algorithm>
 #include <iostream>
+#include <random>
 
 inline constexpr int kNumSmallParticles = 1000;
 
-Simulation::Simulation() : total_rate(0), total_size(0) {
+Simulation::Simulation() : Simulation(0, std::mt19937{}) {}
+
+Simulation::Simulation(float fragmentation_rate, std::mt19937 rng)
+    : rng(rng),
+      total_rate(0),
+      total_size(0),
+      fragmentation_rate(fragmentation_rate) {
   small_particles.reserve(kNumSmallParticles);
   for (int i = 0; i < kNumSmallParticles; i++) {
     small_particles.push_back({0, i, 0});
@@ -22,6 +29,24 @@ std::vector<Particle> Simulation::GetDistribution() {
     }
   }
   return result;
+}
+
+void Simulation::RunSimulationStep() {
+  std::uniform_real_distribution<float> pair_dist(0, total_rate);
+  float rate = pair_dist(rng);
+
+  const std::pair<int, int> particles = FindPair(rate);
+  float new_size =
+      GetParticle(particles.first).size + GetParticle(particles.second).size;
+
+  std::uniform_real_distribution<float> frag_dist(0, 1 + fragmentation_rate);
+  bool is_aggr = frag_dist(rng) < 1;
+  if (is_aggr) {
+    AddParticle(new_size);
+  } else {
+    AddMonomers(new_size);
+  }
+  DeletePair(particles);
 }
 
 void Simulation::AddParticle(int size) {
@@ -49,6 +74,11 @@ void Simulation::AddMonomers(int num_monomers) {
   InsertParticle(1, rate);
   small_particles[1].count += (num_monomers - 1);
   total_rate += num_monomers * 2 * rate;
+
+  // Pairs of newly added monomers were double counted, so we need to fix the
+  // total rate.
+  float excess = num_monomers * (num_monomers - 1) * CollisionFunction(1, 1);
+  total_rate -= excess;
 }
 
 void Simulation::DeleteParticle(int idx) {
