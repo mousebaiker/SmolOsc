@@ -2,3 +2,7 @@
 __pycache__/
 .vscode/
 olddata/
+bazel-bin
+bazel-out
+bazel-smolosc
+bazel-testlogs
