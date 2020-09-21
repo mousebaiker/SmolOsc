@@ -27,9 +27,10 @@ class Simulation {
 
   std::vector<Particle> GetDistribution();
 
+  virtual float CollisionFunction(int first_size, int second_size) = 0;
+
  private:
   Particle& GetParticle(int idx);
-  float CollisionFunction(int first_size, int second_size);
 
   void InsertParticle(int size, float rate);
   void RemoveParticle(int idx);
@@ -44,4 +45,18 @@ class Simulation {
   std::mt19937 rng;
 
   float fragmentation_rate;
+};
+
+class ConstantKernelSimulation : public Simulation {
+  using Simulation::Simulation;
+  inline float CollisionFunction(int first_size, int second_size) override {
+    return 1.0;
+  }
+};
+
+class MultiplicationKernelSimulation : public Simulation {
+  using Simulation::Simulation;
+  inline float CollisionFunction(int first_size, int second_size) override {
+    return first_size * second_size / 100000.0;
+  }
 };

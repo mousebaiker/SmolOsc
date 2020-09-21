@@ -25,7 +25,7 @@ void PrintParticles(const std::vector<Particle>& particles) {
 }
 
 TEST(SimulationTest, AddParticleWorks) {
-  Simulation simulation;
+  MultiplicationKernelSimulation simulation;
   simulation.AddParticle(1);
 
   std::vector<Particle> particles = simulation.GetDistribution();
@@ -53,7 +53,7 @@ TEST(SimulationTest, AddParticleWorks) {
 }
 
 TEST(SimulationTest, FindPairWorks) {
-  Simulation simulation;
+  MultiplicationKernelSimulation simulation;
   simulation.AddParticle(1);
   simulation.AddParticle(1);
   simulation.AddParticle(2);
@@ -79,7 +79,7 @@ TEST(SimulationTest, FindPairWorks) {
 }
 
 TEST(SimualtionTest, AddMonomersWorksWithSingles) {
-  Simulation simulation;
+  MultiplicationKernelSimulation simulation;
   simulation.AddParticle(2);
   simulation.AddParticle(10000);
 
@@ -93,7 +93,7 @@ TEST(SimualtionTest, AddMonomersWorksWithSingles) {
 }
 
 TEST(SimulationTest, AddMonomersWorksOnMultiples) {
-  Simulation simulation;
+  MultiplicationKernelSimulation simulation;
   simulation.AddParticle(2);
   simulation.AddParticle(2);
   simulation.AddParticle(1);
@@ -107,7 +107,7 @@ TEST(SimulationTest, AddMonomersWorksOnMultiples) {
 }
 
 TEST(SimulationTest, DeleteParticleWorks) {
-  Simulation simulation;
+  MultiplicationKernelSimulation simulation;
   simulation.AddParticle(1);
   simulation.AddParticle(1);
   simulation.AddParticle(2);
@@ -138,7 +138,7 @@ TEST(SimulationTest, DeleteParticleWorks) {
 }
 
 TEST(SimulationTest, DeletePairDeletesSmall) {
-  Simulation simulation;
+  MultiplicationKernelSimulation simulation;
   simulation.AddParticle(1);
   simulation.AddParticle(2);
 
@@ -148,7 +148,7 @@ TEST(SimulationTest, DeletePairDeletesSmall) {
 }
 
 TEST(SimulationTest, DeletePairDeletesSameSmall) {
-  Simulation simulation;
+  MultiplicationKernelSimulation simulation;
   simulation.AddParticle(1);
   simulation.AddParticle(1);
 
@@ -158,7 +158,7 @@ TEST(SimulationTest, DeletePairDeletesSameSmall) {
 }
 
 TEST(SimulationTest, DeletePairDeletesBig) {
-  Simulation simulation;
+  MultiplicationKernelSimulation simulation;
   simulation.AddParticle(10000);
   simulation.AddParticle(10001);
 
@@ -168,7 +168,7 @@ TEST(SimulationTest, DeletePairDeletesBig) {
 }
 
 TEST(SimulationTest, RunSimulationStepNoFragmentation) {
-  Simulation simulation;
+  MultiplicationKernelSimulation simulation;
   simulation.AddMonomers(4);
 
   simulation.RunSimulationStep();
@@ -186,7 +186,7 @@ TEST(SimulationTest, RunSimulationStepNoFragmentation) {
 }
 
 TEST(SimulationTest, RunSimulationStepFragmentation) {
-  Simulation simulation(/*fragmentation_rate=*/10000.0, std::mt19937(0));
+  MultiplicationKernelSimulation simulation(/*fragmentation_rate=*/10000.0, std::mt19937(0));
   simulation.AddParticle(10000);
   simulation.AddParticle(20000);
 
