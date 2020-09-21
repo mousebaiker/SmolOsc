@@ -1,6 +1,7 @@
 #include "simulation.h"
 
 #include <algorithm>
+#include <cassert>
 #include <iostream>
 #include <random>
 
@@ -32,14 +33,14 @@ std::vector<Particle> Simulation::GetDistribution() {
 }
 
 void Simulation::RunSimulationStep() {
-  std::uniform_real_distribution<float> pair_dist(0, total_rate);
-  float rate = pair_dist(rng);
+  std::uniform_real_distribution<double> pair_dist(0, total_rate);
+  double rate = pair_dist(rng);
 
   const std::pair<int, int> particles = FindPair(rate);
-  float new_size =
+  long long new_size =
       GetParticle(particles.first).size + GetParticle(particles.second).size;
 
-  std::uniform_real_distribution<float> frag_dist(0, 1 + fragmentation_rate);
+  std::uniform_real_distribution<double> frag_dist(0, 1 + fragmentation_rate);
   bool is_aggr = frag_dist(rng) < 1;
   if (is_aggr) {
     AddParticle(new_size);
@@ -47,10 +48,22 @@ void Simulation::RunSimulationStep() {
     AddMonomers(new_size);
   }
   DeletePair(particles);
+
+  // std::cout << CountTotalRate() << " " << total_rate << std::endl;
+  assert(abs(CountTotalRate() - total_rate) < 1);
 }
 
-void Simulation::AddParticle(int size) {
-  float rate = 0;
+double Simulation::CountTotalRate() {
+  double rate = 0;
+  for (int i = 0; i < total_size; i++) {
+    Particle& particle = GetParticle(i);
+    rate += particle.count * particle.collision_rate;
+  }
+  return rate;
+}
+
+void Simulation::AddParticle(long long size) {
+  double rate = 0;
   float collision_value;
   for (int i = 0; i < total_size; i++) {
     Particle& particle = GetParticle(i);
@@ -62,8 +75,8 @@ void Simulation::AddParticle(int size) {
   total_rate += 2 * rate;
 }
 
-void Simulation::AddMonomers(int num_monomers) {
-  float rate = (num_monomers - 1) * CollisionFunction(1, 1);
+void Simulation::AddMonomers(long long num_monomers) {
+  double rate = CollisionFunction(1, 1) * (num_monomers - 1);
   float collision_value;
   for (int i = 0; i < total_size; i++) {
     Particle& particle = GetParticle(i);
@@ -77,7 +90,7 @@ void Simulation::AddMonomers(int num_monomers) {
 
   // Pairs of newly added monomers were double counted, so we need to fix the
   // total rate.
-  float excess = num_monomers * (num_monomers - 1) * CollisionFunction(1, 1);
+  double excess = CollisionFunction(1, 1) * num_monomers * (num_monomers - 1);
   total_rate -= excess;
 }
 
@@ -106,13 +119,13 @@ void Simulation::DeletePair(const std::pair<int, int>& idxs) {
   DeleteParticle(second);
 }
 
-std::pair<int, int> Simulation::FindPair(float rate) {
+std::pair<int, int> Simulation::FindPair(double rate) {
   SearchResult first = FindFirst(rate);
   SearchResult second = FindSecond(first);
   return std::pair{first.idx, second.idx};
 }
 
-SearchResult Simulation::FindFirst(float rate) {
+SearchResult Simulation::FindFirst(double rate) {
   int idx;
   Particle particle;
   for (idx = 1; idx < total_size; idx++) {
@@ -164,7 +177,7 @@ Particle& Simulation::GetParticle(int idx) {
   return big_particles[idx - kNumSmallParticles];
 }
 
-void Simulation::InsertParticle(int size, float rate) {
+void Simulation::InsertParticle(long long size, double rate) {
   if (size < kNumSmallParticles) {
     small_particles[size].count += 1;
     small_particles[size].collision_rate = rate;
@@ -187,6 +200,7 @@ void Simulation::RemoveParticle(int idx) {
   }
 }
 
-float Simulation::CollisionFunction(int first_size, int second_size) {
-  return first_size * second_size;
+float Simulation::CollisionFunction(long long first_size,
+                                    long long second_size) {
+  return first_size * second_size / 10000000.0;
 }
