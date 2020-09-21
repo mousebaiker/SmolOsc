@@ -14,3 +14,12 @@ cc_test(
     "//googletest:gtest_main",
   ]
 )
+
+
+cc_binary(
+  name = "simulation_benchmark",
+  srcs = ["simulation_benchmark.cc"],
+  deps = [
+    ":simulation_lib",
+  ]
+)
