@@ -6,6 +6,7 @@
 using ::testing::ElementsAre;
 using ::testing::IsEmpty;
 using ::testing::UnorderedElementsAre;
+using ::testing::AnyOf;
 
 #include <iostream>
 
@@ -22,6 +23,14 @@ void PrintParticles(const std::vector<Particle>& particles) {
               << ", count: " << particle.count
               << ", collision rate: " << particle.collision_rate << std::endl;
   }
+}
+
+int CountParticles(const std::vector<Particle>& particles) {
+  int count = 0;
+  for(const auto& particle : particles) {
+    count += particle.size * particle.count;
+  }
+  return count;
 }
 
 
@@ -178,20 +187,26 @@ TEST(SimulationTest, DeletePairDeletesBig) {
 
 TEST(SimulationTest, RunSimulationStepNoFragmentation) {
   TestSimulation simulation;
-  simulation.AddMonomers(4);
+  simulation.AddMonomers(6);
 
   simulation.RunSimulationStep();
   std::vector<Particle> particles = simulation.GetDistribution();
-  PrintParticles(particles);
   EXPECT_THAT(particles, UnorderedElementsAre(
-                             Particle{/*count=*/2, /*size=*/1, /*rate=*/3},
-                             Particle{/*count=*/1, /*size=*/2, /*rate=*/4}));
+                             Particle{/*count=*/4, /*size=*/1, /*rate=*/5},
+                             Particle{/*count=*/1, /*size=*/2, /*rate=*/8}));
 
   simulation.RunSimulationStep();
-  simulation.RunSimulationStep();
   particles = simulation.GetDistribution();
-  EXPECT_THAT(particles, UnorderedElementsAre(
-                             Particle{/*count=*/1, /*size=*/4, /*rate=*/0}));
+  PrintParticles(particles);
+  EXPECT_THAT(particles, AnyOf(
+    UnorderedElementsAre(
+      Particle{/*count=*/2, /*size=*/1, /*rate=*/5},
+      Particle{/*count=*/2, /*size=*/2, /*rate=*/8}
+    ),
+    UnorderedElementsAre(
+      Particle{/*count=*/3, /*size=*/1, /*rate=*/5},
+      Particle{/*count=*/1, /*size=*/3, /*rate=*/9}
+    )));
 }
 
 TEST(SimulationTest, RunSimulationStepFragmentation) {
@@ -208,4 +223,34 @@ TEST(SimulationTest, RunSimulationStepFragmentation) {
   particles = simulation.GetDistribution();
   EXPECT_THAT(particles, UnorderedElementsAre(Particle{
                              /*count=*/30000, /*size=*/1, /*rate=*/29999}));
+}
+
+TEST(SimulationTest, RunSimulationWithDuplication) {
+  TestSimulation simulation;
+  simulation.AddMonomers(4);
+
+  simulation.RunSimulationStep();
+  simulation.RunSimulationStep();
+  std::vector<Particle>  particles = simulation.GetDistribution();
+
+  EXPECT_EQ(CountParticles(particles), 8);
+}
+
+
+TEST(SimulationTest, DuplicateParticles) {
+  TestSimulation simulation;
+  simulation.AddParticle(1);
+  simulation.AddParticle(1);
+  simulation.AddParticle(2);
+  simulation.AddParticle(10000);
+
+
+  simulation.DuplicateParticles();
+
+  std::vector<Particle> particles = simulation.GetDistribution();
+  EXPECT_THAT(particles, UnorderedElementsAre(
+                             Particle{/*count=*/4, /*size=*/1, /*rate=*/20007},
+                             Particle{/*count=*/2, /*size=*/2, /*rate=*/40012},
+                             Particle{/*count=*/1, /*size=*/10000, /*rate=*/100 * 1000 * 1000 + 80 * 1000},
+                             Particle{/*count=*/1, /*size=*/10000, /*rate=*/100 * 1000 * 1000 + 80 * 1000}));
 }

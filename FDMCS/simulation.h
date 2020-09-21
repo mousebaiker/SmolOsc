@@ -21,6 +21,8 @@ class Simulation {
   void AddMonomers(long long num_monomers);
   void DeleteParticle(int idx);
   void DeletePair(const std::pair<int, int>& idxs);
+  void DuplicateParticles();
+
   std::pair<int, int> FindPair(double rate);
 
   void RunSimulationStep();
@@ -34,6 +36,7 @@ class Simulation {
 
   void InsertParticle(long long size, double rate);
   void RemoveParticle(int idx);
+  inline void IncrementParticleCount(int increment);
 
   SearchResult FindFirst(double rate);
   SearchResult FindSecond(SearchResult first);
@@ -44,6 +47,8 @@ class Simulation {
   std::vector<Particle> big_particles;
   double total_rate;
   long long total_size;
+  long long num_particles;
+  long long max_num_particles;
   std::mt19937 rng;
 
   float fragmentation_rate;
