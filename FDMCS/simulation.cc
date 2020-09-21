@@ -26,7 +26,7 @@ std::vector<Particle> Simulation::GetDistribution() {
   Particle particle;
   for (int i = 0; i < total_size; i++) {
     particle = GetParticle(i);
-    if (particle.count > 0) {
+    if (particle.count != 0) {
       result.push_back(particle);
     }
   }
