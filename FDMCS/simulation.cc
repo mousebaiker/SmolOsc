@@ -13,6 +13,7 @@ Simulation::Simulation(float fragmentation_rate, std::mt19937 rng)
     : rng(rng),
       total_rate(0),
       total_size(0),
+      step_counter(0),
       fragmentation_rate(fragmentation_rate) {
   small_particles.reserve(kNumSmallParticles);
   for (int i = 0; i < kNumSmallParticles; i++) {
@@ -49,18 +50,24 @@ void Simulation::RunSimulationStep() {
   }
   DeletePair(particles);
 
-  // std::cout << CountTotalRate() << " " << total_rate << std::endl;
   assert(abs(CountTotalRate() - total_rate) < 1);
+
+  if (step_counter % 1000  == 0) {
+    total_rate = CountTotalRate();
+  }
+  step_counter++;
 }
+
 
 double Simulation::CountTotalRate() {
   double rate = 0;
   for (int i = 0; i < total_size; i++) {
     Particle& particle = GetParticle(i);
-    rate += particle.count * particle.collision_rate;
+    rate += particle.collision_rate * particle.count;
   }
   return rate;
 }
+
 
 void Simulation::AddParticle(long long size) {
   double rate = 0;
@@ -68,7 +75,7 @@ void Simulation::AddParticle(long long size) {
   for (int i = 0; i < total_size; i++) {
     Particle& particle = GetParticle(i);
     collision_value = CollisionFunction(size, particle.size);
-    rate += particle.count * collision_value;
+    rate += collision_value * particle.count;
     particle.collision_rate += collision_value;
   }
   InsertParticle(size, rate);
@@ -77,16 +84,16 @@ void Simulation::AddParticle(long long size) {
 
 void Simulation::AddMonomers(long long num_monomers) {
   double rate = CollisionFunction(1, 1) * (num_monomers - 1);
-  float collision_value;
+  double collision_value;
   for (int i = 0; i < total_size; i++) {
     Particle& particle = GetParticle(i);
     collision_value = CollisionFunction(1, particle.size);
-    rate += particle.count * collision_value;
-    particle.collision_rate += num_monomers * collision_value;
+    rate += collision_value * particle.count;
+    particle.collision_rate += collision_value * num_monomers;
   }
   InsertParticle(1, rate);
   small_particles[1].count += (num_monomers - 1);
-  total_rate += num_monomers * 2 * rate;
+  total_rate += rate * num_monomers * 2;
 
   // Pairs of newly added monomers were double counted, so we need to fix the
   // total rate.
@@ -103,7 +110,7 @@ void Simulation::DeleteParticle(int idx) {
   for (int i = 0; i < total_size; i++) {
     Particle& particle = GetParticle(i);
     collision_value = CollisionFunction(deleted_particle.size, particle.size);
-    rate += particle.count * collision_value;
+    rate += collision_value * particle.count;
     particle.collision_rate -= collision_value;
   }
   total_rate -= 2 * rate;
@@ -122,28 +129,34 @@ void Simulation::DeletePair(const std::pair<int, int>& idxs) {
 std::pair<int, int> Simulation::FindPair(double rate) {
   SearchResult first = FindFirst(rate);
   SearchResult second = FindSecond(first);
+
   return std::pair{first.idx, second.idx};
 }
 
 SearchResult Simulation::FindFirst(double rate) {
-  int idx;
+  int idx = 1;
+  int last_valid = 1;
   Particle particle;
   for (idx = 1; idx < total_size; idx++) {
     particle = GetParticle(idx);
-    float group_rate = particle.count * particle.collision_rate;
+    if (particle.count > 0) {
+      last_valid = idx;
+    }
+
+    float group_rate = particle.collision_rate * particle.count;
     if (rate - group_rate <= 0) {
-      rate -= int(rate / particle.collision_rate) * particle.collision_rate;
+      rate -= particle.collision_rate * int(rate / particle.collision_rate);
       break;
     }
     rate -= group_rate;
   }
 
   if (idx >= total_size) {
-    std::cout << "Out of bound search" << std::endl;
+    std::cerr << "Out of bound search" << std::endl;
     return SearchResult{0, rate};
   }
 
-  return SearchResult{idx, rate};
+  return SearchResult{last_valid, rate};
 }
 
 SearchResult Simulation::FindSecond(SearchResult first) {
@@ -152,22 +165,27 @@ SearchResult Simulation::FindSecond(SearchResult first) {
   Particle particle;
   float count;
   float group_rate;
-  int idx;
+  int idx = 1;
+  int last_valid = 1;
   for (idx = 1; idx < total_size; idx++) {
     particle = GetParticle(idx);
     count = particle.count;
     if (idx == first.idx) {
       count -= 1;
     }
-    group_rate = count * CollisionFunction(first_size, particle.size);
+    if (count > 0) {
+      last_valid = idx;
+    }
 
+
+    group_rate = CollisionFunction(first_size, particle.size) * count;
     if (rate - group_rate <= 0) {
       break;
     }
     rate -= group_rate;
   }
 
-  return SearchResult{idx, rate};
+  return SearchResult{last_valid, rate};
 }
 
 Particle& Simulation::GetParticle(int idx) {
@@ -200,7 +218,7 @@ void Simulation::RemoveParticle(int idx) {
   }
 }
 
-float Simulation::CollisionFunction(long long first_size,
+double Simulation::CollisionFunction(long long first_size,
                                     long long second_size) {
   return first_size * second_size / 10000000.0;
 }
