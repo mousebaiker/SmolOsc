@@ -28,7 +28,7 @@ class Simulation {
 
   std::pair<int, int> FindPair(double rate);
 
-  void RunSimulationStep();
+  double RunSimulationStep();
 
   std::vector<Particle> GetDistribution();
 

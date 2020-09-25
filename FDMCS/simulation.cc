@@ -36,9 +36,9 @@ std::vector<Particle> Simulation::GetDistribution() {
 }
 
 
-void Simulation::RunSimulationStep() {
+double Simulation::RunSimulationStep() {
   std::uniform_real_distribution<double> pair_dist(0, total_rate);
-  std::uniform_real_distribution<double> frag_dist(0, 1 + fragmentation_rate);
+  std::uniform_real_distribution<double> frag_dist(0, 1.0 + fragmentation_rate);
   double rate = pair_dist(rng);
   bool is_aggr = frag_dist(rng) < 1;
 
@@ -62,6 +62,7 @@ void Simulation::RunSimulationStep() {
   }
 
   assert(abs(CountTotalRate() - total_rate) < 1);
+  return 2.0 / total_rate / (1.0 + fragmentation_rate);
 }
 
 
