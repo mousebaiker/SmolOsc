@@ -5,7 +5,6 @@
 #include <iostream>
 #include <random>
 
-inline constexpr int kNumSmallParticles = 1000;
 
 Simulation::Simulation() : Simulation(0, std::mt19937{}) {}
 
@@ -18,9 +17,8 @@ Simulation::Simulation(float fragmentation_rate, std::mt19937 rng)
       num_particles(0),
       max_num_particles(0),
       fragmentation_rate(fragmentation_rate) {
-  small_particles.reserve(kNumSmallParticles);
   for (int i = 0; i < kNumSmallParticles; i++) {
-    small_particles.push_back({0, i, 0});
+    small_particles[i] = Particle{0, i, 0};
   }
 }
 
@@ -69,7 +67,7 @@ void Simulation::RunSimulationStep() {
 
 void Simulation::AddParticle(long long size) {
   double rate = 0;
-  float collision_value;
+  double collision_value;
   for (int i = 0; i < total_size; i++) {
     Particle& particle = GetParticle(i);
     collision_value = CollisionFunction(size, particle.size);
@@ -108,8 +106,8 @@ void Simulation::DeleteParticle(int idx) {
   Particle deleted_particle = GetParticle(idx);
   RemoveParticle(idx);
 
-  float rate = 0;
-  float collision_value;
+  double rate = 0;
+  double collision_value;
   for (int i = 0; i < total_size; i++) {
     Particle& particle = GetParticle(i);
     collision_value = CollisionFunction(deleted_particle.size, particle.size);
@@ -160,6 +158,7 @@ std::pair<int, int> Simulation::FindPair(double rate) {
 
 
 SearchResult Simulation::FindFirst(double rate) {
+  double init_rate = rate;
   int idx = 1;
   int last_valid = 1;
   Particle particle;
@@ -169,7 +168,7 @@ SearchResult Simulation::FindFirst(double rate) {
       last_valid = idx;
     }
 
-    float group_rate = particle.collision_rate * particle.count;
+    double group_rate = particle.collision_rate * particle.count;
     if (rate - group_rate <= 0) {
       rate -= particle.collision_rate * int(rate / particle.collision_rate);
       break;
@@ -187,11 +186,11 @@ SearchResult Simulation::FindFirst(double rate) {
 
 
 SearchResult Simulation::FindSecond(SearchResult first) {
-  float rate = first.remaining_rate;
+  double rate = first.remaining_rate;
   int first_size = GetParticle(first.idx).size;
   Particle particle;
-  float count;
-  float group_rate;
+  double count;
+  double group_rate;
   int idx = 1;
   int last_valid = 1;
   for (idx = 1; idx < total_size; idx++) {

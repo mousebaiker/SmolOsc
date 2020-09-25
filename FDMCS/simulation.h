@@ -1,6 +1,7 @@
 #include <random>
 #include <utility>
 #include <vector>
+#include <array>
 
 typedef struct {
   long long count;
@@ -12,6 +13,8 @@ typedef struct {
   int idx;
   double remaining_rate;
 } SearchResult;
+
+inline constexpr int kNumSmallParticles = 1000;
 
 class Simulation {
  public:
@@ -43,7 +46,7 @@ class Simulation {
 
   double CountTotalRate();
 
-  std::vector<Particle> small_particles;
+  std::array<Particle, kNumSmallParticles> small_particles;
   std::vector<Particle> big_particles;
   double total_rate;
   long long total_size;
