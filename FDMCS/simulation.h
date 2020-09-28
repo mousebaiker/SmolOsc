@@ -1,3 +1,5 @@
+#ifndef FDMCS_SIMULATION
+
 #include <random>
 #include <utility>
 #include <vector>
@@ -72,3 +74,6 @@ class MultiplicationKernelSimulation : public Simulation {
     return first_size * second_size / 100000.0;
   }
 };
+
+#define FDMCS_SIMULATION value
+#endif
