@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+
+message SimulationConfiguration {
+  // Name of simulation experiment.
+  string simulation_name = 1;
+
+  enum KernelType {
+    UNKNOWN = 0;
+    CONSTANT = 1;
+    MULTIPLICATION = 2;
+  }
+
+  // Type of aggregation-fragmentation kernel.
+  KernelType kernel_type = 2;
+
+  // Fragmentation rate for particles. Will be compared to the aggregation rate
+  // of 1.0.
+  float fragmentation_rate = 3;
+
+  // Number of monomer particles in the initial distiribution.
+  int64 monomer_count = 4;
+
+  // Duration of the simulation measured in the internal simulation units.
+  float duration = 5;
+
+  // Options defining how simulation will be saved.
+  SaveOptions save_options = 6;
+}
+
+
+message SaveOptions {
+  // Interval between save checkpoints.
+  // Measured in the internal simulation time.
+  float checkpoint_interval = 1;
+
+  // Output directory that will contain checkpoints.
+  string output_dir = 2;
+}

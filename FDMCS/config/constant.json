@@ -1,0 +1,11 @@
+{
+ "simulation_name": "constant_10000",
+ "kernel_type": "CONSTANT",
+ "fragmentation_rate": 0.7,
+ "monomer_count": "10000",
+ "duration": 100,
+ "save_options": {
+  "checkpoint_interval": 0.05,
+  "output_dir": "C:/Users/Aleksei/Documents/Skoltech/kinetics/project/FDMCS/output/constant_10000"
+ }
+}
