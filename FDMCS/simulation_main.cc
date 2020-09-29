@@ -1,6 +1,6 @@
-#include "fdmcs/simulation.pb.h"
-#include "fdmcs/simulation.h"
-#include "fdmcs/io_util.h"
+#include "FDMCS/simulation.pb.h"
+#include "FDMCS/simulation.h"
+#include "FDMCS/io_util.h"
 
 #include <google/protobuf/util/json_util.h>
 #include <iostream>
