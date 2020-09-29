@@ -26,6 +26,10 @@ message SimulationConfiguration {
 
   // Options defining how simulation will be saved.
   SaveOptions save_options = 6;
+
+  // Options defining how simulation will be started from checkpoint.
+  // Monomer count will be ignored if load_options is present.
+  LoadOptions load_options = 7;
 }
 
 
@@ -36,4 +40,9 @@ message SaveOptions {
 
   // Output directory that will contain checkpoints.
   string output_dir = 2;
+}
+
+message LoadOptions {
+  // Path to a checkpoint from which simulation will be restarted.
+  string checkpoint_path = 1;
 }

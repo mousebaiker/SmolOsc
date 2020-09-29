@@ -10,8 +10,6 @@ using std::chrono::nanoseconds;
 using ::google::protobuf::util::JsonStringToMessage;
 
 
-
-
 nanoseconds RunSimulation(Simulation& simulation, float duration, const SaveOptions& save_options) {
   double simulation_time = 0;
   int last_checkpoint_num = -1;
@@ -50,7 +48,11 @@ std::unique_ptr<Simulation> ConstructSimulation(const SimulationConfiguration& c
       break;
   }
 
-  sim->AddMonomers(config.monomer_count());
+  if (config.has_load_options()) {
+    LoadCheckpoint(*sim, config.load_options().checkpoint_path());
+  } else if (config.had_monomer_count()) {
+    sim->AddMonomers(config.monomer_count());
+  }
   return sim;
 }
 
