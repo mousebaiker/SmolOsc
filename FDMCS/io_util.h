@@ -3,6 +3,7 @@
 #include <fstream>
 #include <string>
 #include <filesystem>
+#include <chrono>
 
 #include "simulation.h"
 
@@ -45,6 +46,31 @@ void SaveCheckpoint(Simulation& simulation, std::string output_dir, float simula
   } else {
     std::cerr << "Error code: " << strerror(errno);
   }
+}
+
+std::chrono::nanoseconds LoadCheckpoint(Simulation& simulation, std::string checkpoint_path) {
+  long long duration;
+  std::ifstream in(checkpoint_path);
+  if (in) {
+    in >> duration;
+
+    long long size;
+    long long count;
+    float collision_rate;
+    while (in >> size >> count >> collision_rate) {
+      if (size == 1) {
+        simulation.AddMonomers(count);
+      } else {
+        for (long long i = 0; i < count; i++) {
+          simulation.AddParticle(size);
+        }
+      }
+    }
+    in.close();
+  } else {
+    std::cerr << "Error code: " << strerror(errno);
+  }
+  return std::chrono::nanoseconds(duration);
 }
 
 #define FDMCS_IO_UTIL value

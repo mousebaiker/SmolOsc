@@ -50,7 +50,7 @@ std::unique_ptr<Simulation> ConstructSimulation(const SimulationConfiguration& c
 
   if (config.has_load_options()) {
     LoadCheckpoint(*sim, config.load_options().checkpoint_path());
-  } else if (config.had_monomer_count()) {
+  } else {
     sim->AddMonomers(config.monomer_count());
   }
   return sim;
