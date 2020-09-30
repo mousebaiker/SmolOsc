@@ -1,0 +1,14 @@
+
+{
+ "simulation_name": "constant_100000",
+ "kernel_type": "CONSTANT",
+ "fragmentation_rate": 0.7,
+ "duration": 100,
+ "save_options": {
+  "checkpoint_interval": 0.05,
+  "output_dir": "/trinity/home/a.kalinov/SmolOsc/FDMCS/output/constant_100000_2"
+ },
+ "load_options": {
+  "checkpoint_path": "/trinity/home/a.kalinov/SmolOsc/FDMCS/output/constant_100000_1/4.000000.cpt"
+ }
+}
