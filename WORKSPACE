@@ -28,3 +28,9 @@ rules_cc_dependencies()
 load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies", "rules_proto_toolchains")
 rules_proto_dependencies()
 rules_proto_toolchains()
+
+http_archive(
+    name = "com_google_googletest",
+    urls = ["https://github.com/google/googletest/archive/master.zip"],
+    strip_prefix = "googletest-master",
+)
