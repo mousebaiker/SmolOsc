@@ -69,7 +69,7 @@ double Simulation::RunSimulationStep() {
 void Simulation::AddParticle(long long size) {
   double rate = 0;
   double collision_value;
-  for (int i = 0; i < total_size; i++) {
+  for (int i = 1; i < total_size; i++) {
     Particle& particle = GetParticle(i);
     collision_value = CollisionFunction(size, particle.size);
     rate += collision_value * particle.count;
@@ -84,7 +84,7 @@ void Simulation::AddParticle(long long size) {
 void Simulation::AddMonomers(long long num_monomers) {
   double rate = CollisionFunction(1, 1) * (num_monomers - 1);
   double collision_value;
-  for (int i = 0; i < total_size; i++) {
+  for (int i = 1; i < total_size; i++) {
     Particle& particle = GetParticle(i);
     collision_value = CollisionFunction(1, particle.size);
     rate += collision_value * particle.count;
@@ -109,7 +109,7 @@ void Simulation::DeleteParticle(int idx) {
 
   double rate = 0;
   double collision_value;
-  for (int i = 0; i < total_size; i++) {
+  for (int i = 1; i < total_size; i++) {
     Particle& particle = GetParticle(i);
     collision_value = CollisionFunction(deleted_particle.size, particle.size);
     rate += collision_value * particle.count;
