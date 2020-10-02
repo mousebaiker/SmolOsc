@@ -1,9 +1,11 @@
 #ifndef FDMCS_SIMULATION
+#define FDMCS_SIMULATION
 
 #include <random>
 #include <utility>
 #include <vector>
 #include <array>
+#include <cmath>
 
 typedef struct {
   long long count;
@@ -75,5 +77,14 @@ class MultiplicationKernelSimulation : public Simulation {
   }
 };
 
-#define FDMCS_SIMULATION value
+class BallisticKernelSimulation : public Simulation {
+  using Simulation::Simulation;
+  inline double CollisionFunction(long long first_size, long long second_size) override {
+    double first = first_size;
+    double second = second_size;
+    double first_term = pow(pow(first, 1.0/3.0) + pow(second, 1.0/3.0), 2.0);
+    double second_term = pow(1.0 / first + 1.0 / second, 0.5);
+    return first_term * second_term;
+  }
+};
 #endif

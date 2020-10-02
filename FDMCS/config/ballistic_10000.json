@@ -1,0 +1,11 @@
+{
+ "simulation_name": "ballistic_10000",
+ "kernel_type": "BALLISTIC",
+ "fragmentation_rate": 0.01,
+ "monomer_count": "10000",
+ "duration": 100,
+ "save_options": {
+  "checkpoint_interval": 0.05,
+  "output_dir": "C:/Users/Aleksei/Documents/Skoltech/kinetics/project/FDMCS/output/ballistic_10000"
+ }
+}

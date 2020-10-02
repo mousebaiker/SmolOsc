@@ -43,6 +43,9 @@ std::unique_ptr<Simulation> ConstructSimulation(const SimulationConfiguration& c
     case SimulationConfiguration::CONSTANT :
       sim = std::make_unique<ConstantKernelSimulation>(config.fragmentation_rate(), std::mt19937());
       break;
+    case SimulationConfiguration::BALLISTIC :
+      sim = std::make_unique<BallisticKernelSimulation>(config.fragmentation_rate(), std::mt19937());
+      break;
 
     case SimulationConfiguration::MULTIPLICATION :
       break;
@@ -59,10 +62,12 @@ std::unique_ptr<Simulation> ConstructSimulation(const SimulationConfiguration& c
 
 
 int main(int argc, char const *argv[]) {
-  const std::string input = "C:/Users/Aleksei/Documents/Skoltech/kinetics/project/FDMCS/config/constant.json";
+  const std::string input = "C:/Users/Aleksei/Documents/Skoltech/kinetics/project/FDMCS/config/ballistic_10000.json";
 
   SimulationConfiguration config;
   JsonStringToMessage(GetFileContents(input), &config);
+
+
 
   std::unique_ptr<Simulation> simulation = ConstructSimulation(config);
   RunSimulation(*simulation, config.duration(), config.save_options());

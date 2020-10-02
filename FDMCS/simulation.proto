@@ -9,6 +9,7 @@ message SimulationConfiguration {
     UNKNOWN = 0;
     CONSTANT = 1;
     MULTIPLICATION = 2;
+    BALLISTIC = 3;
   }
 
   // Type of aggregation-fragmentation kernel.
