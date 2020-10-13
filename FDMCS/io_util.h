@@ -1,4 +1,5 @@
 #ifndef FDMCS_IO_UTIL
+#define FDMCS_IO_UTIL
 
 #include <fstream>
 #include <string>
@@ -73,5 +74,4 @@ std::chrono::nanoseconds LoadCheckpoint(Simulation& simulation, std::string chec
   return std::chrono::nanoseconds(duration);
 }
 
-#define FDMCS_IO_UTIL value
 #endif

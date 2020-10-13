@@ -57,6 +57,7 @@ class Simulation {
   long long num_particles;
   long long max_num_particles;
   std::mt19937 rng;
+  double cell_size;
 
   float fragmentation_rate;
 

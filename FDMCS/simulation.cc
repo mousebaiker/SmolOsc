@@ -16,6 +16,7 @@ Simulation::Simulation(float fragmentation_rate, std::mt19937 rng)
       step_counter(0),
       num_particles(0),
       max_num_particles(0),
+      cell_size(1.0),
       fragmentation_rate(fragmentation_rate) {
   for (int i = 0; i < kNumSmallParticles; i++) {
     small_particles[i] = Particle{0, i, 0};
@@ -59,10 +60,12 @@ double Simulation::RunSimulationStep() {
 
   if (num_particles <= (max_num_particles / 2)) {
     DuplicateParticles();
+    cell_size *= 2.0;
   }
 
   assert(abs(CountTotalRate() - total_rate) < 1);
-  return 2.0 / total_rate / (1.0 + fragmentation_rate);
+  double renormalization = 1 / (1.0 + fragmentation_rate);
+  return 2.0 / total_rate * renormalization * max_num_particles * cell_size;
 }
 
 
