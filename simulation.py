@@ -87,7 +87,7 @@ class FastSimulation(Simulation):
   def __init__(self, kernel_type, initial_concentration, dt, lmbda, alpha):
     super().__init__(initial_concentration, dt, lmbda, alpha)
     self.kernel_type = kernel_type
-    
+
     js = np.arange(0, len(self.concentration), dtype=np.float64)
     self.init_UV(kernel_type, len(self.concentration))
 
@@ -104,6 +104,16 @@ class FastSimulation(Simulation):
       self.V[0, 1:] = js[1:]**(-self.alpha)
       self.V[1, 1:] = js[1:]**(self.alpha)
       self.U = self.V.T[:, ::-1]
+    elif kernel_type == 'ballistic':
+      i = np.arange(0, num_equations)
+      j = np.arange(0, num_equations).reshape((-1, 1))
+      K = (i**(1/3.0) + j**(1/3.0))**2.0 * (1.0 / i + 1.0 / j)**0.5
+      K[~np.isfinite(K)] = 0.0
+      u, s, v = np.linalg.svd(K)
+      rank = np.sum(s > 1e-10)
+      self.V = v[:rank, :]
+      self.U = u[:, :rank] * s[:rank]
+
 
   def K_nn(self, concentration):
     """

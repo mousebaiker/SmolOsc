@@ -7,3 +7,5 @@ bazel-out
 bazel-smolosc
 bazel-testlogs
 *.swp
+bazel-project
+FDMCS/output/
