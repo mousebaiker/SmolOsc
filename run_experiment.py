@@ -22,10 +22,14 @@ def validate_config(config):
   result = True
   result &= validate_required_param(config, 'dt')
   result &= validate_required_param(config, 'lambda')
-  result &= validate_required_param(config, 'alpha')
   result &= validate_required_param(config, 'experiment_name')
   result &= validate_required_param(config, 'num_iters')
   result &= validate_required_param(config, 'checkpoint_frequency')
+  result &= validate_required_param(config, 'kernel_type')
+
+  kernel_type = config['kernel_type']
+  if kernel_type != 'constant':
+    result &= validate_required_param(config, 'alpha')
 
   num_equations = config.get('num_equations')
   path_to_initial = config.get('path_to_initial')
@@ -54,7 +58,8 @@ def main():
   if path_to_initial is not None:
     initial = np.load(path_to_initial)
 
-  e = experiment.Experiment(dt=config.get('dt'), lmbda=config.get('lambda'),
+  e = experiment.Experiment(kernel_type=config.get('kernel_type'),
+      dt=config.get('dt'), lmbda=config.get('lambda'),
       alpha=config.get('alpha'), num_equations=config.get('num_equations'),
       initial=initial, final_lambda=config.get('final_lambda'),
       lambda_decay_type=config.get('lambda_decay_type'), use_cuda=config.get('use_cuda'))
@@ -85,6 +90,10 @@ def main():
   fig, _ = plotting.plot_moments(ts, zeroth, first, second)
   fig.savefig(os.path.join(results_dir, 'moments.png'))
 
+  cutoff = 10
+  fig, _ = plotting.plot_moments(ts[cutoff:], zeroth[cutoff:], first[cutoff:], second[cutoff:])
+  fig.savefig(os.path.join(results_dir, 'moments_cutoff.png'))
+
   fig, _ = plotting.plot_solution(k, solutions[-1, 1:])
   fig.savefig(os.path.join(results_dir, 'final_solution.png'))
 
@@ -95,9 +104,6 @@ def main():
   plotting.create_solution_animation(ts, k, solutions[:, 1:], os.path.join(results_dir, 'solutions.mp4'))
 
   print(f'Experiment {name} done. Results saved to {results_dir}')
-
-
-
 
 
 if __name__ == "__main__":

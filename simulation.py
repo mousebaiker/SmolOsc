@@ -84,24 +84,37 @@ class NaiveSimulation(Simulation):
 
 
 class FastSimulation(Simulation):
-  def __init__(self, initial_concentration, dt, lmbda, alpha):
+  def __init__(self, kernel_type, initial_concentration, dt, lmbda, alpha):
     super().__init__(initial_concentration, dt, lmbda, alpha)
-
+    self.kernel_type = kernel_type
+    
     js = np.arange(0, len(self.concentration), dtype=np.float64)
-    self.V = np.zeros((2, len(self.concentration)))
-    self.V[0, 1:] = js[1:]**(-self.alpha)
-    self.V[1, 1:] = js[1:]**(self.alpha)
-    self.U = self.V.T[:, ::-1]
+    self.init_UV(kernel_type, len(self.concentration))
 
     self.Vj = self.V * js[None, :]
+
+  def init_UV(self, kernel_type, num_equations):
+    if kernel_type == 'constant':
+      self.V = np.ones((1, num_equations))
+      self.V[0, 0] = 0.0
+      self.U = self.V.T
+    elif kernel_type == 'brownian':
+      js = np.arange(0, num_equations, dtype=np.float64)
+      self.V = np.zeros((2, num_equations))
+      self.V[0, 1:] = js[1:]**(-self.alpha)
+      self.V[1, 1:] = js[1:]**(self.alpha)
+      self.U = self.V.T[:, ::-1]
 
   def K_nn(self, concentration):
     """
     sum_{i + j = k} K_{ij} * n_i * n_j
     """
-    first = self.V[0] * concentration
-    second = self.V[1] * concentration
-    return 2 * fftconvolve(first, second)[:len(concentration)]
+    result = np.zeros(len(concentration))
+    for d in range(len(self.V)):
+      first = self.V[d] * concentration
+      second = self.U[:, d] * concentration
+      result += fftconvolve(first, second)[:len(concentration)]
+    return result
 
 
   def K_ij_nn(self, concentration):

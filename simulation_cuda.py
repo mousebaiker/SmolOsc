@@ -10,29 +10,28 @@ except ImportError:
 import simulation
 
 class CudaSimulation(simulation.FastSimulation):
-  def __init__(self, initial_concentration, dt, lmbda, alpha):
+  def __init__(self, kernel_type, initial_concentration, dt, lmbda, alpha):
     if not CUDA_ENABLED:
       print('CuPy is not installed! Falling back to numpy.', file=sys.stderr)
     initial_concentration = cp.array(initial_concentration)
-    super().__init__(initial_concentration, dt, lmbda, alpha)
+    super().__init__(kernel_type, initial_concentration, dt, lmbda, alpha)
 
-
-    js = cp.arange(0, len(self.concentration), dtype=cp.float64)
-    self.V = cp.zeros((2, len(self.concentration)))
-    self.V[0, 1:] = js[1:]**(-self.alpha)
-    self.V[1, 1:] = js[1:]**(self.alpha)
-    self.U = self.V.T[:, ::-1]
-
-    self.Vj = self.V * js[None, :]
+    self.V = cp.array(self.V)
+    self.U = cp.array(self.U)
+    self.Vj = cp.array(self.Vj)
 
 
   def K_nn(self, concentration):
     """
     sum_{i + j = k} K_{ij} * n_i * n_j
     """
-    first = self.V[0] * concentration
-    second = self.V[1] * concentration
-    return 2 * self.convolve(first, second)[:len(concentration)]
+    result = cp.zeros(len(concentration))
+    for d in range(len(self.V)):
+      first = self.V[d] * concentration
+      second = self.U[:, d] * concentration
+      result += self.convolve(first, second)[:len(concentration)]
+    return result
+
 
   def convolve(self, first, second):
     shape = first.shape[0] + second.shape[0] - 1
