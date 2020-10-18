@@ -1,0 +1,11 @@
+{
+ "simulation_name": "constant_10000",
+ "kernel_type": "CONSTANT",
+ "fragmentation_rate": 0.1,
+ "monomer_count": "10000",
+ "duration": 100,
+ "save_options": {
+  "checkpoint_interval": 0.1,
+  "output_dir": "/trinity/home/a.kalinov/SmolOsc/FDMCS/output/constant_10000"
+ }
+}

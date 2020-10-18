@@ -62,7 +62,7 @@ std::unique_ptr<Simulation> ConstructSimulation(const SimulationConfiguration& c
 
 
 int main(int argc, char const *argv[]) {
-  const std::string input = "C:/Users/Aleksei/Documents/Skoltech/kinetics/project/FDMCS/config/ballistic_10000.json";
+  const std::string input = "/gpfs/data/home/a.kalinov/SmolOsc/FDMCS/config/ballistic_1000_higher_frag_load.json";
 
   SimulationConfiguration config;
   JsonStringToMessage(GetFileContents(input), &config);
