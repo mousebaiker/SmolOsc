@@ -6,3 +6,4 @@ bazel-bin
 bazel-out
 bazel-smolosc
 bazel-testlogs
+*.swp
