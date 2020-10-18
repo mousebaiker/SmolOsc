@@ -28,7 +28,7 @@ def validate_config(config):
   result &= validate_required_param(config, 'kernel_type')
 
   kernel_type = config['kernel_type']
-  if kernel_type != 'constant':
+  if kernel_type == 'brownian':
     result &= validate_required_param(config, 'alpha')
 
   num_equations = config.get('num_equations')
