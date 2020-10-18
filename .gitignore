@@ -6,3 +6,5 @@ bazel-bin
 bazel-out
 bazel-smolosc
 bazel-testlogs
+bazel-project
+FDMCS/output/
