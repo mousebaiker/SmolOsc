@@ -1,0 +1,27 @@
+# Name of the experiment. Will be used to store results.
+experiment_name: constant_32767
+
+# A numerical simulation timestep. Kept constant throughout simulation.
+dt: 0.001
+
+# Total number of iterations done by simulation.
+num_iters: 100000
+
+# How often to save results. Solutions will be saved every `checkpoint_frequency` iterations.
+# Final solution is always saved.
+checkpoint_frequency: 100
+
+# How many equations to use in the simulations. Monodisperse initial condition will be used, unless
+# `path_to_initial` is specified.
+num_equations: 32767
+
+# Path to initial condition. Initial condition should be a 1D numpy array in a binary format.
+# The program uses 1-based indexing for the solution, so the concentration of clusters of size 1 should be
+# stored at index 1. Index 0 is unused.
+# path_to_initial: /path/to/initial/soluiton.npy
+
+# Type of kernel.
+kernel_type: 'constant'
+
+# Rate of cluster fragmenation in Smoluchowski equations.
+lambda: 0.1
