@@ -10,8 +10,8 @@ import simulation_cuda as simcp
 DATA_DIRECTORY = 'data'
 
 class Experiment(object):
-  def __init__(self, kernel_type, dt, lmbda, alpha, num_equations=None, initial=None,
-      final_lambda=None, lambda_decay_type=None, use_cuda=False):
+  def __init__(self, kernel_type, simulation_type, dt, lmbda, alpha, num_equations=None, initial=None,
+      final_lambda=None, lambda_decay_type=None):
     if initial is None and num_equations is None:
       raise ValueError("At least one of num_equations and initial should be provided.")
 
@@ -24,10 +24,16 @@ class Experiment(object):
     self.lmbda = lmbda
     self.final_lambda = final_lambda
     self.lambda_decay_type  = lambda_decay_type
-    if use_cuda:
+
+    if simulation_type == "cuda":
       self.sim = simcp.CudaSimulation(kernel_type, initial, dt, lmbda, alpha)
-    else:
+    elif simulation_type == "fast":
       self.sim = simulation.FastSimulation(kernel_type, initial, dt, lmbda, alpha)
+    elif simulation_type == "naive":
+      self.sim = simulation.NaiveSimulation(kernel_type, initial, dt, lmbda, alpha)
+    else:
+      raise ValueError("Unknown simulation type: " + str(simulation_type))
+
 
   def run_experiment(self, name, num_iters, checkpoint_freq):
     result_dir = os.path.join(DATA_DIRECTORY, name)

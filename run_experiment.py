@@ -26,6 +26,7 @@ def validate_config(config):
   result &= validate_required_param(config, 'num_iters')
   result &= validate_required_param(config, 'checkpoint_frequency')
   result &= validate_required_param(config, 'kernel_type')
+  result &= validate_required_param(config, 'simulation_type')
 
   kernel_type = config['kernel_type']
   if kernel_type == 'brownian':
@@ -59,10 +60,11 @@ def main():
     initial = np.load(path_to_initial)
 
   e = experiment.Experiment(kernel_type=config.get('kernel_type'),
+      simulation_type=config.get('simulation_type'),
       dt=config.get('dt'), lmbda=config.get('lambda'),
       alpha=config.get('alpha'), num_equations=config.get('num_equations'),
       initial=initial, final_lambda=config.get('final_lambda'),
-      lambda_decay_type=config.get('lambda_decay_type'), use_cuda=config.get('use_cuda'))
+      lambda_decay_type=config.get('lambda_decay_type'))
 
 
   name = config['experiment_name']

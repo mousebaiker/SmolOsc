@@ -1,6 +1,8 @@
 import numpy as np
 from scipy.signal import fftconvolve
 
+import kernels
+
 class Simulation(object):
   def __init__(self, initial_concentration, dt, lmbda, alpha):
     self.concentration = np.copy(initial_concentration)
@@ -49,8 +51,9 @@ class Simulation(object):
 
 
 class NaiveSimulation(Simulation):
-  def __init__(self, initial_concentration, dt, lmbda, alpha):
+  def __init__(self, kernel_type, initial_concentration, dt, lmbda, alpha):
     super().__init__(initial_concentration, dt, lmbda, alpha)
+    self.kernel_type = kernels.KERNELS[kernel_type]
 
   def K_nn(self, concentration):
     """
@@ -59,7 +62,8 @@ class NaiveSimulation(Simulation):
     result = np.zeros_like(concentration)
     for k in range(2, len(concentration)):
       for i in range(1, k):
-        result[k] += concentration[i] * concentration[k-i] * ((i / (k - i))**self.alpha + ((k - i) / i)**self.alpha)
+        K_ij = self.kernel_type(i, k-i, alpha=self.alpha)
+        result[k] += concentration[i] * concentration[k-i] * K_ij
     return result
 
   def K_ij_nn(self, concentration):
@@ -69,7 +73,8 @@ class NaiveSimulation(Simulation):
     result = 0
     for i in range(1, len(concentration)):
       for j in range(1, len(concentration)):
-        result += ((i / j)**self.alpha + (j / i)**self.alpha) * (i + j) * concentration[i] * concentration[j]
+        K_ij = self.kernel_type(i, j, alpha=self.alpha)
+        result += K_ij * (i + j) * concentration[i] * concentration[j]
     return result
 
   def K_n(self, concentration):
@@ -78,7 +83,7 @@ class NaiveSimulation(Simulation):
     """
     iss = np.arange(len(concentration)).reshape((-1, 1))
     js = np.arange(len(concentration))
-    K = (iss / js)**self.alpha + (js / iss)**self.alpha
+    K = self.kernel_type(iss, js, alpha=self.alpha)
     K[~np.isfinite(K)] = 0
     return K @ concentration
 
