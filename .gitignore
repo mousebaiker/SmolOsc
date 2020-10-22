@@ -8,3 +8,6 @@ bazel-smolosc
 bazel-testlogs
 bazel-project
 FDMCS/output/
+data/
+figures/
+movies/
