@@ -65,7 +65,11 @@ std::unique_ptr<Simulation> ConstructSimulation(const SimulationConfiguration& c
 
 
 int main(int argc, char const *argv[]) {
-  const std::string input = "/gpfs/data/home/a.kalinov/SmolOsc/FDMCS/config/brownian_osc_1000.json";
+  if (argc != 2) {
+    std::cerr << "Please specify a path to a config and no other arguments." << std::endl;
+    exit(2);
+  }
+  const std::string input = argv[1];
 
   SimulationConfiguration config;
   JsonStringToMessage(GetFileContents(input), &config);
