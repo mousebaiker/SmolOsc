@@ -50,9 +50,13 @@ The produced results include:
 
 ### Running tests
 
+Tests are implemented in `test_simulation.py` with the help of built-in `unittest` module.
 
+To run them execute 
 
-
+```bash
+python -m unittest test_simulation.py
+```
 
 
 # References
