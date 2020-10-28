@@ -23,6 +23,13 @@ Simulation::Simulation(float fragmentation_rate, std::mt19937 rng)
   }
 }
 
+BrownianKernelSimulation::BrownianKernelSimulation(double alpha) : alpha_(alpha) {}
+
+BrownianKernelSimulation::BrownianKernelSimulation(float fragmentation_rate, std::mt19937 rng, double alpha) : Simulation(fragmentation_rate, rng) {
+  alpha_ = alpha;
+}
+
+
 
 std::vector<Particle> Simulation::GetDistribution() {
   std::vector<Particle> result;

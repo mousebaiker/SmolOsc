@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-
+// Next field: 9
 message SimulationConfiguration {
   // Name of simulation experiment.
   string simulation_name = 1;
@@ -10,10 +10,16 @@ message SimulationConfiguration {
     CONSTANT = 1;
     MULTIPLICATION = 2;
     BALLISTIC = 3;
+    BROWNIAN = 4;
   }
 
   // Type of aggregation-fragmentation kernel.
   KernelType kernel_type = 2;
+
+  // Parameters used only by specific kernels.
+  oneof kernel_params {
+    BrownianKernelParams brownian_kernel_params = 8;
+  }
 
   // Fragmentation rate for particles. Will be compared to the aggregation rate
   // of 1.0.
@@ -46,4 +52,9 @@ message SaveOptions {
 message LoadOptions {
   // Path to a checkpoint from which simulation will be restarted.
   string checkpoint_path = 1;
+}
+
+message BrownianKernelParams {
+  // Exponent value of brownian kernel.
+  float alpha = 1;
 }

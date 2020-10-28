@@ -88,4 +88,19 @@ class BallisticKernelSimulation : public Simulation {
     return first_term * second_term;
   }
 };
+
+class BrownianKernelSimulation : public Simulation {
+ public:
+  BrownianKernelSimulation(double alpha); 
+  BrownianKernelSimulation(float fragmentation_rate, std::mt19937 rng, double alpha);
+  inline double CollisionFunction(long long first_size, long long second_size) override {
+    double fraction = first_size / (double) second_size;
+    double inverse = second_size / (double) first_size;
+    double first_term = pow(fraction, alpha_);
+    double second_term = pow(inverse, alpha_);
+    return first_term + second_term;
+  }
+ private:
+  double alpha_;
+};
 #endif

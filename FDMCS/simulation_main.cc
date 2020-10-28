@@ -46,8 +46,11 @@ std::unique_ptr<Simulation> ConstructSimulation(const SimulationConfiguration& c
     case SimulationConfiguration::BALLISTIC :
       sim = std::make_unique<BallisticKernelSimulation>(config.fragmentation_rate(), std::mt19937());
       break;
-
     case SimulationConfiguration::MULTIPLICATION :
+      break;
+    case SimulationConfiguration::BROWNIAN :
+      sim = std::make_unique<BrownianKernelSimulation>(config.fragmentation_rate(), std::mt19937(),
+          config.brownian_kernel_params().alpha());
       break;
   }
 
@@ -62,7 +65,7 @@ std::unique_ptr<Simulation> ConstructSimulation(const SimulationConfiguration& c
 
 
 int main(int argc, char const *argv[]) {
-  const std::string input = "/gpfs/data/home/a.kalinov/SmolOsc/FDMCS/config/ballistic_1000_higher_frag_load.json";
+  const std::string input = "/gpfs/data/home/a.kalinov/SmolOsc/FDMCS/config/brownian_osc_1000.json";
 
   SimulationConfiguration config;
   JsonStringToMessage(GetFileContents(input), &config);

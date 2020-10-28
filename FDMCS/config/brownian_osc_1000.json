@@ -1,0 +1,14 @@
+{
+ "simulation_name": "brownian_osc_1000",
+ "kernel_type": "BROWNIAN",
+ "fragmentation_rate": 0.001,
+ "monomer_count": "1000",
+ "duration": 100,
+ "save_options": {
+  "checkpoint_interval": 0.1,
+  "output_dir": "/trinity/home/a.kalinov/SmolOsc/FDMCS/output/brownian_osc_1000"
+ },
+ "brownian_kernel_params": {
+   "alpha": 0.9
+ }
+}
