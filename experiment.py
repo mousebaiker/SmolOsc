@@ -1,4 +1,5 @@
 import os
+import time
 
 import numpy as np
 import tqdm
@@ -42,7 +43,8 @@ class Experiment(object):
 
     lambdas = self.precompute_lambdas(num_iters)
     lambda_history = []
-    print(type(self.sim.concentration))
+    time_history = []
+    start_time = time.time()
     for iter in tqdm.tqdm(range(num_iters)):
       l = lambdas[iter]
       self.sim.update_lambda(l)
@@ -52,14 +54,19 @@ class Experiment(object):
         solutions_path = os.path.join(solutions_dir, str(iter))
         np.save(solutions_path, self.sim.concentration)
         lambda_history.append(l)
+        time_history.append(time.time() - start_time)
 
     if num_iters % checkpoint_freq != 0:
       solutions_path = os.path.join(solutions_dir, str(num_iters - 1))
       np.save(solutions_path, self.sim.concentration)
       lambda_history.append(l)
+      time_history.append(time.time() - start_time)
 
     lambdas_path = os.path.join(result_dir, 'lambda')
     np.save(lambdas_path, np.array(lambda_history))
+    
+    time_path = os.path.join(result_dir, 'time')
+    np.save(time_path, np.array(time_history))
 
   def precompute_lambdas(self, num_iters):
     if self.lambda_decay_type is None:
