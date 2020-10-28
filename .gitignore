@@ -9,3 +9,6 @@ bazel-testlogs
 *.swp
 bazel-project
 FDMCS/output/
+data/
+figures/
+movies/

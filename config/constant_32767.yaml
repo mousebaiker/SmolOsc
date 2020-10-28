@@ -1,6 +1,10 @@
 # Name of the experiment. Will be used to store results.
 experiment_name: constant_32767
 
+# A type of simulation that defines the hardware and methods used to compute
+# the results. The resulting values should be the same regardless of the type.
+simulation_type: fast
+
 # A numerical simulation timestep. Kept constant throughout simulation.
 dt: 0.001
 
