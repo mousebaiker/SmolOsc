@@ -10,14 +10,14 @@ Simulation::Simulation() : Simulation(0, std::mt19937{}) {}
 
 
 Simulation::Simulation(float fragmentation_rate, std::mt19937 rng)
-    : rng(rng),
-      total_rate(0),
+    : total_rate(0),
       total_size(0),
-      step_counter(0),
       num_particles(0),
       max_num_particles(0),
+      rng(rng),
       cell_size(1.0),
-      fragmentation_rate(fragmentation_rate) {
+      fragmentation_rate(fragmentation_rate),
+      step_counter(0) {
   for (int i = 0; i < kNumSmallParticles; i++) {
     small_particles[i] = Particle{0, i, 0};
   }
@@ -169,7 +169,6 @@ std::pair<int, int> Simulation::FindPair(double rate) {
 
 
 SearchResult Simulation::FindFirst(double rate) {
-  double init_rate = rate;
   int idx = 1;
   int last_valid = 1;
   Particle particle;
