@@ -1,0 +1,12 @@
+{
+ "simulation_name": "ballistic_100000",
+ "kernel_type": "BALLISTIC",
+ "fragmentation_rate": 0.01,
+ "monomer_count": "100000",
+ "duration": 100,
+ "save_options": {
+  "checkpoint_interval": 0.1,
+  "output_dir": "/trinity/home/a.kalinov/SmolOsc/FDMCS/output/ballistic_100000"
+ }
+}
+
