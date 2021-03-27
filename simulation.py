@@ -1,5 +1,8 @@
+import functools
+
 import numpy as np
 from scipy.signal import fftconvolve
+from scipy import optimize
 
 import kernels
 
@@ -84,7 +87,10 @@ class NaiveSimulation(Simulation):
     iss = np.arange(len(concentration)).reshape((-1, 1))
     js = np.arange(len(concentration))
     K = self.kernel_type(iss, js, alpha=self.alpha)
-    K[~np.isfinite(K)] = 0
+    try:
+      K[~np.isfinite(K)] = 0
+    except TypeError:
+      pass
     return K @ concentration
 
 
@@ -159,3 +165,38 @@ class ConstantSourceSimulation(FastSimulation):
     update[1] = (-concentration[1] * K_n[1] + 1)
     update[2:] = (0.5 * self.K_nn(concentration) - (1 + self.lmbda) * concentration * K_n)[2:]
     return update
+
+
+class BackwardEulerSimulation(FastSimulation):
+  def implicit_function(self, x):
+    update = self.compute_update(x)
+    return x - self.dt * update - self.concentration
+
+  def simulation_step(self):
+    initial_approx = np.ones(len(self.concentration)) / len(self.concentration)
+    initial_approx[np.arange(100, len(self.concentration))] = 0
+    solution = optimize.root(self.implicit_function, initial_approx, method='krylov')
+    if not solution.success:
+      print(solution.message)
+      # raise ValueErkror(solution.message)
+    new_concentration = solution.x
+    new_concentration[new_concentration < 0] = 0.0
+    self.concentration = new_concentration
+
+
+class CrankNicolsonSimulation(FastSimulation):
+  def implicit_function(self, x, c):
+    update = self.compute_update(x)
+    return x - 0.5 * self.dt * update - c
+
+  def simulation_step(self):
+    initial_approx = np.ones(len(self.concentration)) / len(self.concentration)
+    initial_approx[np.arange(100, len(self.concentration))] = 0
+    rhs = self.concentration + 0.5 * self.compute_update(self.concentration) * self.dt
+    solution = optimize.root(functools.partial(self.implicit_function, c=rhs), initial_approx, method='krylov')
+    if not solution.success:
+      print(solution.message)
+      # raise ValueErkror(solution.message)
+    new_concentration = solution.x
+    new_concentration[new_concentration < 0] = 0.0
+    self.concentration = new_concentration

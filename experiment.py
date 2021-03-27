@@ -32,6 +32,10 @@ class Experiment(object):
       self.sim = simulation.FastSimulation(kernel_type, initial, dt, lmbda, alpha)
     elif simulation_type == "naive":
       self.sim = simulation.NaiveSimulation(kernel_type, initial, dt, lmbda, alpha)
+    elif simulation_type == "backward_euler":
+      self.sim = simulation.BackwardEulerSimulation(kernel_type, initial, dt, lmbda, alpha)
+    elif simulation_type == "crank_nicolson":
+      self.sim = simulation.CrankNicolsonSimulation(kernel_type, initial, dt, lmbda, alpha)
     else:
       raise ValueError("Unknown simulation type: " + str(simulation_type))
 
@@ -64,7 +68,7 @@ class Experiment(object):
 
     lambdas_path = os.path.join(result_dir, 'lambda')
     np.save(lambdas_path, np.array(lambda_history))
-    
+
     time_path = os.path.join(result_dir, 'time')
     np.save(time_path, np.array(time_history))
 

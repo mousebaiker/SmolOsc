@@ -1,5 +1,14 @@
+import numpy as np
+
 def constant_kernel(first, second, **kwargs):
-  return 1.0
+  if (isinstance(first, int) and isinstance(second, int)):
+    return int(first * second != 0)
+  shape = np.broadcast(first, second).shape
+  result = np.empty(shape)
+  result.fill(1.0)
+  result[0, ...] = 0.0
+
+  return result
 
 
 def brownian_kernel(first, second, **kwargs):
