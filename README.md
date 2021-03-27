@@ -17,8 +17,13 @@ You can learn more about the above contributions from our paper: [Direct simulat
 
 The method is implemented in Python. Any Python >= 3.7 should be fine. We have used Python 3.8 in our experiments.
 
-TODO: List of requirements.txt
+On top of that we use the standard scientific stack. You can see the requirements in the `requirements.txt` file and install them via pip:
 
+```bash
+python -m pip install -r requirements.txt
+```
+
+For GPU-accelerated workflow CuPy of version 8.0 or higher is required. Learn how to install it on your machine from their [official page](https://cupy.dev/).  
 
 ### Running an experiment
 
