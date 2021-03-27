@@ -105,8 +105,15 @@ void Simulation::AddMonomers(long long num_monomers) {
     rate += collision_value * particle.count;
     particle.collision_rate += collision_value * num_monomers;
   }
-  InsertParticle(1, rate);
-  small_particles[1].count += (num_monomers - 1);
+  if (kNumSmallParticles >= 2) {
+    InsertParticle(1, rate);
+    small_particles[1].count += (num_monomers - 1);
+  } else {
+    big_particles.reserve(big_particles.size() + num_monomers);
+    for (int i = 0; i < num_monomers; i++) {
+      InsertParticle(1, rate);
+    }
+  }
   total_rate += rate * num_monomers * 2;
   IncrementParticleCount(num_monomers);
 
