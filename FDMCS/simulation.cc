@@ -13,8 +13,10 @@ Simulation::Simulation(float fragmentation_rate, std::mt19937 rng)
     : total_rate(0),
       total_size(0),
       num_particles(0),
+      num_initial_particles(0),
       max_num_particles(0),
       rng(rng),
+      cell_size(1.0),
       fragmentation_rate(fragmentation_rate),
       step_counter(0) {
   for (int i = 0; i < kNumSmallParticles; i++) {
@@ -44,6 +46,10 @@ std::vector<Particle> Simulation::GetDistribution() {
 
 
 double Simulation::RunSimulationStep() {
+  // Remember the number of initial particles before doing any work.
+  if (num_initial_particles == 0) {
+    num_initial_particles = max_num_particles;
+  }
   std::uniform_real_distribution<double> pair_dist(0, total_rate);
   std::uniform_real_distribution<double> frag_dist(0, 1.0 + fragmentation_rate);
   double rate = pair_dist(rng);
@@ -66,11 +72,12 @@ double Simulation::RunSimulationStep() {
 
   if (num_particles <= (max_num_particles / 2)) {
     DuplicateParticles();
+    cell_size *= 2.0;
   }
 
   assert(abs(CountTotalRate() - total_rate) < 1);
   double renormalization = 1 / (1.0 + fragmentation_rate);
-  return 2.0 / total_rate * renormalization * max_num_particles;
+  return 2.0 / total_rate * renormalization * num_initial_particles * cell_size;
 }
 
 

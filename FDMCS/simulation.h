@@ -18,7 +18,7 @@ typedef struct {
   double remaining_rate;
 } SearchResult;
 
-inline constexpr int kNumSmallParticles = 1000;
+inline constexpr int kNumSmallParticles = 10000;
 
 class Simulation {
  public:
@@ -55,8 +55,10 @@ class Simulation {
   double total_rate;
   long long total_size;
   long long num_particles;
+  long long num_initial_particles;
   long long max_num_particles;
   std::mt19937 rng;
+  double cell_size;
 
   float fragmentation_rate;
 
