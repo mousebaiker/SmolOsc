@@ -9,6 +9,7 @@ This package contains two primary methods to solve Smoluchowski equations:
 1. We augment FDMCS method to be suitable for the fragmentation kinetics by choosing an event type before picking the pair of particles.
 2. We introduce particle grouping in FDMCS to speed up small-size particle updates, including a heavy batch monomer operation after particle fragmentation event.
 
+You can learn more about the above contributions from our paper: [Direct simulation Monte Carlo for new regimes in aggregation-fragmentation kinetics](https://arxiv.org/abs/2103.09481).
 
 ## Finite-difference methods
 
@@ -52,7 +53,7 @@ The produced results include:
 
 Tests are implemented in `test_simulation.py` with the help of built-in `unittest` module.
 
-To run them execute 
+To run them execute
 
 ```bash
 python -m unittest test_simulation.py
