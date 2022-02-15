@@ -34,7 +34,7 @@ nanoseconds RunSimulation(Simulation& simulation, float duration, const SaveOpti
 
 
 std::unique_ptr<Simulation> ConstructSimulation(const SimulationConfiguration& config) {
-  std::unique_ptr<Simulation> sim;
+  std::unique_ptr<Simulation> sim;    
   switch (config.kernel_type()) {
     case SimulationConfiguration::UNKNOWN :
       std::cerr << "Kernel unknown" << std::endl;
@@ -57,7 +57,29 @@ std::unique_ptr<Simulation> ConstructSimulation(const SimulationConfiguration& c
   if (config.has_load_options()) {
     LoadCheckpoint(*sim, config.load_options().checkpoint_path());
   } else {
-    sim->AddMonomers(config.monomer_count());
+    switch (config.initial_conditions().distribution_type()) {
+      case InitialConditions::UNKNOWN :
+        std::cerr << "Initial conditions are unknown" << std::endl;
+        exit(1);
+        break;
+            
+      case InitialConditions::SMALLEST_N :
+        long long num_sizes = config.initial_conditions().smallest_n_params().num_sizes();
+        long long num_particles_per_size = config.initial_conditions().smallest_n_params().particle_count_for_each_size();
+        
+        if (num_sizes == 0) {
+          std::cerr << "Number of sizes in smallest N cannot be 0." << std::endl;
+          exit(1); 
+        }
+        
+        sim->AddMonomers(num_particles_per_size);
+        for (long long size = 2; size <= num_sizes; ++size) {
+            for (long long num_part = 0; num_part < num_particles_per_size; ++num_part) {
+              sim->AddParticle(size);
+            }
+        }
+        break;         
+    }
   }
   return sim;
 }

@@ -2,7 +2,13 @@
  "simulation_name": "constant_100000",
  "kernel_type": "CONSTANT",
  "fragmentation_rate": 0.1,
- "monomer_count": "100000",
+ "initial_conditions": {
+     "distribution_type": "SMALLEST_N",
+     "smallest_n_params": {
+         "particle_count_for_each_size": "100000",
+         "num_sizes": 1
+     }
+ },
  "duration": 100,
  "save_options": {
   "checkpoint_interval": 0.1,
