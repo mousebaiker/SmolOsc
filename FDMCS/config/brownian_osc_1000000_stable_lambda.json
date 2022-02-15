@@ -1,0 +1,20 @@
+{
+ "simulation_name": "brownian_osc_1000000_stable_lambda",
+ "kernel_type": "BROWNIAN",
+ "fragmentation_rate": 0.01,
+ "initial_conditions": {
+     "distribution_type": "SMALLEST_N",
+     "smallest_n_params": {
+         "particle_count_for_each_size": "100000",
+         "num_sizes": 10
+     }
+ },
+ "duration": 500,
+ "save_options": {
+  "checkpoint_interval": 0.1,
+  "output_dir": "C:/Users/Aleksei/Documents/Skoltech/kinetics/project/FDMCS/output/brownian_osc_1000000_stable_lambda"
+ },
+ "brownian_kernel_params": {
+   "alpha": 0.9
+ }
+}
