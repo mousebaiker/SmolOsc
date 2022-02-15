@@ -20,7 +20,7 @@ void PrintParticles(const std::vector<Particle>& particles) {
   }
 }
 
-nanoseconds recordDuration(MultiplicationKernelSimulation& simulation, int num_iterations) {
+nanoseconds recordDuration(Simulation& simulation, int num_iterations) {
   auto start = high_resolution_clock::now();
 
   for (int i = 0; i < num_iterations; i++) {
@@ -36,14 +36,14 @@ int main(int argc, char const *argv[]) {
 
   std::vector<int> initial_monomers{1000, 10000, 100'000, 1'000'000};
 
-  const int num_iterations = 10 * 1000 * 1000;
+  const int num_iterations = 1 * 1000 * 1;
 
   std::cout << std::setprecision(10);
 
   std::cout << "Completing " << num_iterations << " for each experiment." << std::endl;
   for (auto num_monomers : initial_monomers) {
-    const float fragmentation_rate = 1.0;
-    MultiplicationKernelSimulation simulation(fragmentation_rate, std::mt19937());
+    const float fragmentation_rate = 0.2;
+    BrownianKernelSimulation simulation(fragmentation_rate, std::mt19937(), 0.9);
     simulation.AddMonomers(num_monomers);
     nanoseconds running_time = recordDuration(simulation, num_iterations);
     std::cout << "  Running time for " << num_monomers << " monomers is " <<
