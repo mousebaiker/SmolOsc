@@ -51,6 +51,10 @@ class Experiment(object):
             self.sim = simulation.BackwardEulerSimulation(
                 kernel_type, initial, dt, lmbda, alpha
             )
+        elif simulation_type == "backward_euler_cpp":
+            self.sim = simulation.BackwardEulerCPPSimulation(
+                kernel_type, initial, dt, lmbda, alpha
+            )
         elif simulation_type == "crank_nicolson":
             self.sim = simulation.CrankNicolsonSimulation(
                 kernel_type, initial, dt, lmbda, alpha

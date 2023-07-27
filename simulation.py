@@ -4,6 +4,8 @@ import numpy as np
 from scipy.signal import fftconvolve
 from scipy import optimize
 
+import NewtonKrylov.bindings.NewtonKrylov as nk
+
 import kernels
 
 
@@ -179,8 +181,22 @@ class BackwardEulerSimulation(FastSimulation):
         )
         if not solution.success:
             print(solution.message)
-            # raise ValueErkror(solution.message)
+            # raise ValueError(solution.message)
         new_concentration = solution.x
+        new_concentration[new_concentration < 0] = 0.0
+        self.concentration = new_concentration
+
+
+class BackwardEulerCPPSimulation(FastSimulation):
+    def implicit_function(self, x):
+        update = self.compute_update(x)
+        return x - self.dt * update - self.concentration
+
+    def simulation_step(self):
+        initial_approx = np.ones(len(self.concentration)) / len(self.concentration)
+        initial_approx[np.arange(100, len(self.concentration))] = 0
+        solution = nk.solve(lambda x: self.implicit_function(x), initial_approx)
+        new_concentration = solution
         new_concentration[new_concentration < 0] = 0.0
         self.concentration = new_concentration
 
@@ -203,7 +219,7 @@ class CrankNicolsonSimulation(FastSimulation):
         )
         if not solution.success:
             print(solution.message)
-            # raise ValueErkror(solution.message)
+            # raise ValueError(solution.message)
         new_concentration = solution.x
         new_concentration[new_concentration < 0] = 0.0
         self.concentration = new_concentration
