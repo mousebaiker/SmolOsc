@@ -2,58 +2,12 @@
 #include <iostream>
 #include <limits>
 
+#include "krylov_jacobian.h"
 #include "lgmres.h"
 #include "newton_krylov.h"
 #include "types.h"
 
 double maxnorm(Vecr x) { return x.lpNorm<Eigen::Infinity>(); }
-
-void KrylovJacobian::update_diff_step() {
-  double mx = maxnorm(x0);
-  double mf = maxnorm(f0);
-  omega = rdiff * std::max(1., mx) / std::max(1., mf);
-}
-
-KrylovJacobian::KrylovJacobian(Vecr x, Vecr f, VecFunc F) {
-  func = F;
-  maxiter = 1;
-  inner_m = 30;
-  outer_k = 10;
-
-  x0 = x;
-  f0 = f;
-  rdiff = std::pow(mEPS, 0.5);
-  update_diff_step();
-  outer_v = std::vector<Vec>(0);
-
-  int n = x.size();
-  M = Mat::Identity(n, n);
-}
-
-Vec KrylovJacobian::matvec(Vec v) {
-  double nv = v.norm();
-  if (nv == 0)
-    return 0. * v;
-  double sc = omega / nv;
-  return (func(x0 + sc * v) - f0) / sc;
-}
-
-Vec KrylovJacobian::psolve(Vec v) { return M * v; }
-
-Vec KrylovJacobian::solve(Vecr rhs, double tol) {
-  Vec x0 = 0. * rhs;
-  using std::placeholders::_1;
-  std::function<Vec(Vec)> mvec = std::bind(&KrylovJacobian::matvec, *this, _1);
-  std::function<Vec(Vec)> psol = std::bind(&KrylovJacobian::psolve, *this, _1);
-
-  return lgmres(mvec, psol, rhs, x0, outer_v, tol, maxiter, inner_m, outer_k);
-}
-
-void KrylovJacobian::update(Vecr x, Vecr f) {
-  x0 = x;
-  f0 = f;
-  update_diff_step();
-}
 
 TerminationCondition::TerminationCondition(double ftol, double frtol,
                                            double xtol, double xrtol) {
@@ -159,7 +113,7 @@ Vec nonlin_solve(VecFunc F, Vecr x, double f_tol, double f_rtol, double x_tol,
   Vec Fx = F(x);
   double Fx_norm = maxnorm(Fx);
 
-  KrylovJacobian jacobian(x, Fx, F);
+  KrylovJacobianFD jacobian(x, Fx, F);
 
   int maxiter = 100 * (x.size() + 1);
   for (int n = 0; n < maxiter; n++) {
