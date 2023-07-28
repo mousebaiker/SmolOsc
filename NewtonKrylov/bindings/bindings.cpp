@@ -9,20 +9,10 @@
 
 namespace py = pybind11;
 
+PYBIND11_MODULE(NewtonKrylov, m) {
+  m.doc() = "Python bindings to the Newton-Krylov C++ implementation";
 
-PYBIND11_PLUGIN(NewtonKrylov)
-{
-    py::module m("NewtonKrylov",
-                 "Python bindings to the Newton-Krylov C++ implementation");
-
-    m.def("solve",
-          &nonlin_solve,
-          py::arg("F"),
-          py::arg("x"),
-          py::arg("f_tol")=pow(mEPS,1./3),
-          py::arg("f_rtol")=INF,
-          py::arg("x_tol")=INF,
-          py::arg("x_rtol")=INF);
-
-    return m.ptr();
+  m.def("solve", &nonlin_solve, py::arg("F"), py::arg("x"),
+        py::arg("f_tol") = pow(mEPS, 1. / 3), py::arg("f_rtol") = INF,
+        py::arg("x_tol") = INF, py::arg("x_rtol") = INF);
 }
