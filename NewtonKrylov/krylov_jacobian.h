@@ -42,5 +42,4 @@ private:
   Vec f0;
   double rdiff;
   double omega;
-  Mat M;
 };

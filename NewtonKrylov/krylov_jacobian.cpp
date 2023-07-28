@@ -23,8 +23,6 @@ KrylovJacobianFD::KrylovJacobianFD(Vecr x, Vecr f, VecFunc F) {
   f0 = f;
   rdiff = std::pow(mEPS, 0.5);
   update_diff_step();
-  int n = x.size();
-  M = Mat::Identity(n, n);
 }
 
 Vec KrylovJacobianFD::matvec(Vec v) {
@@ -35,7 +33,7 @@ Vec KrylovJacobianFD::matvec(Vec v) {
   return (func(x0 + sc * v) - f0) / sc;
 }
 
-Vec KrylovJacobianFD::psolve(Vec v) { return M * v; }
+Vec KrylovJacobianFD::psolve(Vec v) { return v; }
 
 void KrylovJacobianFD::update(Vecr x, Vecr f) {
   x0 = x;
